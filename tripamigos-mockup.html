@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TripAmigos – Brand Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #ffffff; color: #1a1a2e; }
+
+  /* === COLOUR PALETTE === */
+  :root {
+    --primary: #1a1a2e;
+    --accent: #1e3a5f;          /* darker navy blue */
+    --accent-hover: #162d4a;
+    --accent-light: rgba(30, 58, 95, 0.08);
+    --accent-bright: #2563eb;   /* brighter blue for CTAs */
+    --accent-bright-hover: #1d4ed8;
+    --bg-soft: #f8f9fb;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --border: #e5e7eb;
+    --white: #ffffff;
+  }
+
+  /* === PALETTE SWATCHES === */
+  .swatches { display: flex; gap: 12px; flex-wrap: wrap; margin: 32px auto; max-width: 900px; padding: 0 24px; }
+  .swatch { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border); background: white; }
+  .swatch-color { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+  .swatch-label { font-size: 13px; font-weight: 600; color: var(--primary); }
+  .swatch-hex { font-size: 11px; color: var(--text-secondary); font-family: monospace; }
+
+  /* === NAV === */
+  nav { border-bottom: 1px solid var(--border); background: white; position: sticky; top: 0; z-index: 50; }
+  .nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { color: white; }
+  .logo-text { font-weight: 700; font-size: 18px; color: var(--primary); }
+  .logo-text span { color: var(--accent-bright); }
+  .nav-btn { padding: 10px 20px; background: var(--accent-bright); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+  .nav-btn:hover { background: var(--accent-bright-hover); }
+
+  /* === HERO === */
+  .hero { background: linear-gradient(135deg, var(--accent) 0%, #0f2640 100%); color: white; padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .hero::after { content: ''; position: absolute; left: -40px; bottom: -40px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.03); }
+  .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.1; max-width: 700px; margin: 0 auto 16px; position: relative; z-index: 1; }
+  .hero h1 span { color: #60a5fa; }
+  .hero p { font-size: 18px; color: rgba(255,255,255,0.75); max-width: 540px; margin: 0 auto 32px; line-height: 1.6; position: relative; z-index: 1; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 8px; padding: 16px 36px; background: var(--accent-bright); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3); position: relative; z-index: 1; }
+  .hero-cta:hover { background: var(--accent-bright-hover); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4); }
+  .hero-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 16px; position: relative; z-index: 1; }
+
+  /* === CARDS SECTION === */
+  .section { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); margin-bottom: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+  .card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+  .card-icon.blue { background: var(--accent-light); }
+  .card h3 { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+  .card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  /* === TRIP DASHBOARD PREVIEW === */
+  .dashboard-preview { background: var(--bg-soft); padding: 60px 24px; }
+  .dashboard-inner { max-width: 900px; margin: 0 auto; }
+  .trip-hero { background: linear-gradient(135deg, var(--accent) 0%, #0f2640 100%); border-radius: 16px; padding: 32px; color: white; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .trip-hero::before { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+  .trip-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+  .trip-name { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .trip-meta { font-size: 14px; color: rgba(255,255,255,0.7); }
+  .trip-pills { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .trip-pill { padding: 6px 14px; border-radius: 20px; background: rgba(255,255,255,0.1); font-size: 12px; font-weight: 500; }
+
+  .cta-bar { background: var(--accent-bright); color: white; border-radius: 16px; padding: 18px; text-align: center; font-weight: 700; font-size: 18px; cursor: pointer; transition: background 0.2s; margin-bottom: 16px; animation: pulse 2s infinite; }
+  .cta-bar:hover { background: var(--accent-bright-hover); animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+
+  .tabs { display: flex; gap: 4px; background: var(--bg-soft); border-radius: 16px; padding: 4px; margin-bottom: 16px; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 500; color: var(--text-secondary); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+  .tab.active { background: white; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 600; }
+
+  .member-card { background: white; border: 1px solid #bbf7d0; border-radius: 16px; padding: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .member-left { display: flex; align-items: center; gap: 12px; }
+  .member-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+  .member-avatar.org { background: var(--accent-bright); }
+  .member-avatar.att { background: var(--accent); }
+  .member-name { font-weight: 600; font-size: 14px; color: var(--primary); }
+  .member-status { font-size: 12px; color: #16a34a; font-weight: 500; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-done { background: #f0fdf4; color: #16a34a; }
+  .badge-org { background: var(--accent-light); color: var(--accent-bright); margin-left: 8px; }
+
+  /* === BUTTONS ROW === */
+  .buttons-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+  .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: var(--accent-bright); color: white; }
+  .btn-primary:hover { background: var(--accent-bright-hover); }
+  .btn-secondary { background: white; color: var(--primary); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-soft); }
+  .btn-dark { background: var(--accent); color: white; }
+  .btn-dark:hover { background: var(--accent-hover); }
+  .btn-outline-blue { background: white; color: var(--accent-bright); border: 1px solid var(--accent-bright); }
+
+  /* === COMPARISON === */
+  .comparison { max-width: 900px; margin: 0 auto; padding: 60px 24px; }
+  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .comp-card { border-radius: 16px; padding: 32px; }
+  .comp-card.old { background: #fef2f2; border: 2px solid #fecaca; }
+  .comp-card.new { background: #eff6ff; border: 2px solid #bfdbfe; }
+  .comp-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .comp-card.old .comp-label { color: #ef4444; }
+  .comp-card.new .comp-label { color: var(--accent-bright); }
+  .comp-name { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+  .comp-card.old .comp-name { color: #1a1a2e; }
+  .comp-card.new .comp-name { color: var(--accent); }
+  .comp-card.old .comp-name span { color: #e94560; }
+  .comp-card.new .comp-name span { color: var(--accent-bright); }
+  .comp-colors { display: flex; gap: 6px; margin-top: 16px; }
+  .comp-dot { width: 32px; height: 32px; border-radius: 50%; }
+
+  /* === FOOTER === */
+  footer { background: var(--accent); color: white; padding: 40px 24px; text-align: center; }
+  footer p { font-size: 14px; color: rgba(255,255,255,0.6); }
+  footer .footer-logo { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  footer .footer-logo span { color: #60a5fa; }
+
+  @media (max-width: 768px) {
+    .cards { grid-template-columns: 1fr; }
+    .comp-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <span class="logo-text">Trip<span>Amigos</span></span>
+    </a>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="nav-btn">+ New trip</button>
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--accent-bright);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">O</div>
+    </div>
+  </div>
+</nav>
+
+<!-- COLOUR PALETTE -->
+<div class="swatches">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#1e3a5f;"></div>
+    <div><div class="swatch-label">Dark Navy</div><div class="swatch-hex">#1e3a5f</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#2563eb;"></div>
+    <div><div class="swatch-label">Bright Blue (CTA)</div><div class="swatch-hex">#2563eb</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#1a1a2e;"></div>
+    <div><div class="swatch-label">Primary Text</div><div class="swatch-hex">#1a1a2e</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#ffffff;border:1px solid #e5e7eb;"></div>
+    <div><div class="swatch-label">White</div><div class="swatch-hex">#ffffff</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#f8f9fb;border:1px solid #e5e7eb;"></div>
+    <div><div class="swatch-label">Soft BG</div><div class="swatch-hex">#f8f9fb</div></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Group trips, <span>sorted.</span></h1>
+  <p>One link, everyone votes on flights and hotels. We find the best options for your whole group — from wherever they're flying from.</p>
+  <button class="hero-cta">Start planning — it's free →</button>
+  <p class="hero-sub">No card required · Works with 300+ airlines · Hotels worldwide</p>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <p class="section-title">How it works</p>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon blue">📋</div>
+      <h3>Create your trip</h3>
+      <p>Set the dates, add your mates, pick your destination shortlist. Takes 2 minutes.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">✈️</div>
+      <h3>Everyone votes</h3>
+      <p>Each person submits their budget, destination picks, and travel preferences from their own device.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon blue">🎉</div>
+      <h3>Book together</h3>
+      <p>We crunch the votes and find flights + hotels that work for everyone. One click to book.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SIDE BY SIDE COMPARISON -->
+<div class="comparison">
+  <p class="section-title">Before → After</p>
+  <div class="comp-grid">
+    <div class="comp-card old">
+      <div class="comp-label">Before</div>
+      <div class="comp-name">Meet <span>Point</span></div>
+      <p style="font-size:13px;color:#6b7280;margin-top:4px;">Red/pink accent · Airbnb-adjacent</p>
+      <div class="comp-colors">
+        <div class="comp-dot" style="background:#e94560;"></div>
+        <div class="comp-dot" style="background:#d63d56;"></div>
+        <div class="comp-dot" style="background:#1a1a2e;"></div>
+        <div class="comp-dot" style="background:#ffffff;border:1px solid #e5e7eb;"></div>
+      </div>
+    </div>
+    <div class="comp-card new">
+      <div class="comp-label">After</div>
+      <div class="comp-name">Trip<span>Amigos</span></div>
+      <p style="font-size:13px;color:#6b7280;margin-top:4px;">Navy + blue · Travel-native, trustworthy</p>
+      <div class="comp-colors">
+        <div class="comp-dot" style="background:#1e3a5f;"></div>
+        <div class="comp-dot" style="background:#2563eb;"></div>
+        <div class="comp-dot" style="background:#1a1a2e;"></div>
+        <div class="comp-dot" style="background:#ffffff;border:1px solid #e5e7eb;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PREVIEW -->
+<div class="dashboard-preview">
+  <div class="dashboard-inner">
+    <p class="section-title">Dashboard preview</p>
+
+    <div class="trip-hero">
+      <div class="trip-label">You're organising</div>
+      <div class="trip-name">Lads trip to Barcelona</div>
+      <div class="trip-meta">Jun 12 – Jun 16, 2026 · 5 days · Stag Do</div>
+      <div class="trip-pills">
+        <span class="trip-pill">One card</span>
+        <span class="trip-pill">Europe</span>
+        <span class="trip-pill" style="background:rgba(96,165,250,0.2);color:#93c5fd;">Collecting preferences</span>
+      </div>
+    </div>
+
+    <div class="cta-bar">See my trip options →</div>
+
+    <div class="tabs">
+      <div class="tab">Overview</div>
+      <div class="tab">Preferences</div>
+      <div class="tab active">Members</div>
+    </div>
+
+    <div class="member-card">
+      <div class="member-left">
+        <div class="member-avatar org">O</div>
+        <div>
+          <div class="member-name">You <span class="badge badge-org">Organiser</span></div>
+          <div class="member-status">Preferences submitted</div>
+        </div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+
+    <div class="member-card">
+      <div class="member-left">
+        <div class="member-avatar att">J</div>
+        <div>
+          <div class="member-name">James Smith</div>
+          <div class="member-status">Preferences submitted</div>
+        </div>
+      </div>
+      <span class="badge badge-done">Done</span>
+    </div>
+
+    <div class="member-card" style="border-color:#e5e7eb;">
+      <div class="member-left">
+        <div class="member-avatar" style="background:#d1d5db;color:#6b7280;">M</div>
+        <div>
+          <div class="member-name">Mike Jones</div>
+          <div class="member-status" style="color:#d97706;">Hasn't opened invite yet</div>
+        </div>
+      </div>
+      <span class="badge" style="background:#eff6ff;color:#2563eb;">Pending</span>
+    </div>
+
+    <!-- Buttons showcase -->
+    <div class="buttons-row">
+      <button class="btn btn-primary">Primary action</button>
+      <button class="btn btn-dark">Dark button</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-outline-blue">Outline</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Trip<span>Amigos</span></div>
+  <p>Group trips, sorted. © 2026</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!--
+  ============================================================
+  TRIPAMIGOS — SUPABASE AUTH EMAIL TEMPLATES
+  ============================================================
+  Paste each template into Supabase Dashboard → Authentication → Email Templates
+
+  SMTP Settings (Supabase Dashboard → Project Settings → Auth → SMTP):
+    Host: smtp.resend.com
+    Port: 465
+    Username: resend
+    Password: (your Resend API key)
+    Sender name: TripAmigos
+    Sender email: info@tripamigos.co
+  ============================================================
+-->
+
+
+<!-- ============================================================
+     TEMPLATE 1: CONFIRM SIGNUP
+     Supabase Dashboard → Auth → Email Templates → "Confirm signup"
+     Subject: Confirm your TripAmigos account
+     ============================================================ -->
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;padding:40px 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+
+      <!-- Header -->
+      <tr><td style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:28px 32px;text-align:center;">
+        <span style="font-size:22px;font-weight:600;color:#ffffff;">Trip<span style="opacity:0.9;">Amigos</span></span>
+      </td></tr>
+
+      <!-- Body -->
+      <tr><td style="padding:32px;">
+        <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a1a2e;">Welcome aboard! ✈️</h1>
+        <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+          Thanks for signing up for TripAmigos. Confirm your email address to start planning group trips with your friends.
+        </p>
+
+        <!-- CTA button -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">
+              Confirm my email →
+            </a>
+          </td></tr>
+        </table>
+
+        <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;text-align:center;line-height:1.5;">
+          If you didn't create an account, you can safely ignore this email.
+        </p>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;">
+          TripAmigos · Group trips, sorted.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+
+
+<!-- ============================================================
+     TEMPLATE 2: RESET PASSWORD
+     Supabase Dashboard → Auth → Email Templates → "Reset password"
+     Subject: Reset your TripAmigos password
+     ============================================================ -->
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;padding:40px 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+
+      <!-- Header -->
+      <tr><td style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:28px 32px;text-align:center;">
+        <span style="font-size:22px;font-weight:600;color:#ffffff;">Trip<span style="opacity:0.9;">Amigos</span></span>
+      </td></tr>
+
+      <!-- Body -->
+      <tr><td style="padding:32px;">
+        <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a1a2e;">Reset your password 🔒</h1>
+        <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+          We received a request to reset the password for your TripAmigos account. Click the button below to choose a new one.
+        </p>
+
+        <!-- CTA button -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">
+              Reset my password →
+            </a>
+          </td></tr>
+        </table>
+
+        <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;text-align:center;line-height:1.5;">
+          This link expires in 24 hours. If you didn't request a reset, you can safely ignore this email.
+        </p>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;">
+          TripAmigos · Group trips, sorted.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+
+
+<!-- ============================================================
+     TEMPLATE 3: MAGIC LINK
+     Supabase Dashboard → Auth → Email Templates → "Magic link"
+     Subject: Your TripAmigos login link
+     ============================================================ -->
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;padding:40px 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+
+      <!-- Header -->
+      <tr><td style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:28px 32px;text-align:center;">
+        <span style="font-size:22px;font-weight:600;color:#ffffff;">Trip<span style="opacity:0.9;">Amigos</span></span>
+      </td></tr>
+
+      <!-- Body -->
+      <tr><td style="padding:32px;">
+        <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a1a2e;">Your login link 🔑</h1>
+        <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+          Click the button below to log in to your TripAmigos account. No password needed!
+        </p>
+
+        <!-- CTA button -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">
+              Log in to TripAmigos →
+            </a>
+          </td></tr>
+        </table>
+
+        <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;text-align:center;line-height:1.5;">
+          This link expires in 24 hours and can only be used once. If you didn't request this, you can safely ignore it.
+        </p>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;">
+          TripAmigos · Group trips, sorted.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+
+
+<!-- ============================================================
+     TEMPLATE 4: CHANGE EMAIL ADDRESS
+     Supabase Dashboard → Auth → Email Templates → "Change email address"
+     Subject: Confirm your new email for TripAmigos
+     ============================================================ -->
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;padding:40px 20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+
+      <!-- Header -->
+      <tr><td style="background:linear-gradient(135deg,#1d4ed8,#2563eb);padding:28px 32px;text-align:center;">
+        <span style="font-size:22px;font-weight:600;color:#ffffff;">Trip<span style="opacity:0.9;">Amigos</span></span>
+      </td></tr>
+
+      <!-- Body -->
+      <tr><td style="padding:32px;">
+        <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#1a1a2e;">Confirm your new email ✉️</h1>
+        <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+          You've requested to change the email address on your TripAmigos account. Click below to confirm this change.
+        </p>
+
+        <!-- CTA button -->
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 32px;background:#2563eb;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;border-radius:10px;">
+              Confirm new email →
+            </a>
+          </td></tr>
+        </table>
+
+        <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;text-align:center;line-height:1.5;">
+          If you didn't request this change, please secure your account by resetting your password immediately.
+        </p>
+      </td></tr>
+
+      <!-- Footer -->
+      <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+        <p style="margin:0;font-size:12px;color:#9ca3af;">
+          TripAmigos · Group trips, sorted.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
