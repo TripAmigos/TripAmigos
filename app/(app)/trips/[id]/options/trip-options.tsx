@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { Loader, AlertTriangle, RefreshCw, Plane, Train, Car, Clock, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Repeat, Building2, Star, MapPin, ExternalLink, Coffee, Check, Users, Calendar, Gift, EyeOff, Globe, Info } from 'lucide-react'
@@ -278,20 +278,37 @@ export default function TripOptions({ trip, preferences, members, userId, transp
   // SEARCH ROUTES ON MOUNT
   // =====================================================
 
+  // Prevent the search from firing more than once
+  const searchStartedRef = React.useRef(false)
+
+  // Stable key so we only re-run when the actual route inputs change
+  const routesKey = useMemo(
+    () => computedRoutes.map(r => `${r.id}:${r.passengerCount}`).join('|'),
+    [computedRoutes]
+  )
+
   useEffect(() => {
     if (!topDestination || computedRoutes.length === 0) {
       setRoutesSearching(false)
       return
     }
 
+    // Only run once per set of routes
+    if (searchStartedRef.current) return
+    searchStartedRef.current = true
+
     // Initialise routes state
     setRoutes(computedRoutes)
+
+    const abortController = new AbortController()
 
     const searchAllRoutes = async () => {
       const updatedRoutes = [...computedRoutes]
 
       // Search routes sequentially to avoid hitting Duffel rate limits
       for (let index = 0; index < updatedRoutes.length; index++) {
+        if (abortController.signal.aborted) return
+
         const route = updatedRoutes[index]
 
         // Drivers arrange their own transport — skip search
@@ -309,6 +326,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                 returnDate: trip.date_to,
                 passengers: String(route.passengerCount),
               }),
+              signal: abortController.signal,
             })
             const data = await res.json()
             updatedRoutes[index] = {
@@ -327,9 +345,9 @@ export default function TripOptions({ trip, preferences, members, userId, transp
               let usedIATA = primaryIATA
 
               for (const tryIATA of airportsToTry) {
+                if (abortController.signal.aborted) return
                 try {
-                  const controller = new AbortController()
-                  const timeout = setTimeout(() => controller.abort(), 45000)
+                  const timeout = setTimeout(() => {}, 45000) // safety net
                   const res = await fetch('/api/flights/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -340,7 +358,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                       returnDate: trip.date_to,
                       passengers: String(route.passengerCount),
                     }),
-                    signal: controller.signal,
+                    signal: abortController.signal,
                   })
                   clearTimeout(timeout)
                   const data = await res.json()
@@ -349,12 +367,16 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                     usedIATA = tryIATA
                     break // Found flights, stop trying fallbacks
                   }
+                  // If the API returned an error, don't keep trying fallbacks
+                  if (data.error) {
+                    console.warn(`Flight search error from ${tryIATA}: ${data.error}`)
+                    break
+                  }
                 } catch (err: any) {
                   if (err.name === 'AbortError') {
-                    console.warn(`Flight search from ${tryIATA} timed out, trying next...`)
-                  } else {
-                    console.warn(`No results from ${tryIATA}, trying next fallback...`)
+                    return // Component unmounted, stop everything
                   }
+                  console.warn(`No results from ${tryIATA}, trying next fallback...`)
                 }
               }
 
@@ -402,10 +424,16 @@ export default function TripOptions({ trip, preferences, members, userId, transp
     }
 
     searchAllRoutes().catch((err) => {
-      console.error('Route search failed entirely:', err)
+      if (err?.name !== 'AbortError') {
+        console.error('Route search failed entirely:', err)
+      }
       setRoutesSearching(false)
     })
-  }, [topDestination, computedRoutes, trip.date_from, trip.date_to])
+
+    return () => {
+      abortController.abort()
+    }
+  }, [topDestination, routesKey, trip.date_from, trip.date_to])
 
   // Hotel search
   useEffect(() => {
