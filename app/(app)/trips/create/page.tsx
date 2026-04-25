@@ -761,23 +761,9 @@ export default function CreateTripPage() {
               {/* Destinations — only for collaborative mode */}
               {tripMode === 'collaborative' && (
                 <div className="space-y-4">
-                  {/* Let attendees decide button */}
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setDestinationsSkipped(!destinationsSkipped)}
-                      className={`w-full p-4 rounded-card border-2 text-left transition-all ${
-                        destinationsSkipped
-                          ? 'border-accent bg-accent-light'
-                          : 'border-border hover:border-gray-300 bg-white'
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-primary mb-1">Let attendees decide</p>
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        Your attendees will suggest destinations when they submit their preferences. No shortlist needed.
-                      </p>
-                    </button>
-                  </div>
+                  <label className="block text-sm font-medium text-primary">
+                    Shortlist destinations for your group
+                  </label>
 
                   {!destinationsSkipped && (
                     <>
@@ -798,7 +784,7 @@ export default function CreateTripPage() {
                       {/* Destination Scope */}
                       <div>
                         <label className="block text-sm font-medium text-primary mb-3">
-                          Where should we look for destinations?
+                          Where should we look?
                         </label>
                         <p className="text-xs text-text-secondary mb-3">
                           This narrows down the options your group can choose from
@@ -905,6 +891,34 @@ export default function CreateTripPage() {
                       </div>
                     </>
                   )}
+
+                  {/* Divider */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-text-muted font-medium">or</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+
+                  {/* Let attendees decide */}
+                  <button
+                    type="button"
+                    onClick={() => setDestinationsSkipped(!destinationsSkipped)}
+                    className={`w-full p-4 rounded-card border-2 text-left transition-all ${
+                      destinationsSkipped
+                        ? 'border-accent bg-accent-light'
+                        : 'border-border hover:border-gray-300 bg-white'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-primary mb-1">Let attendees decide</p>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      Skip the shortlist — your attendees will suggest destinations when they submit their preferences.
+                    </p>
+                    {destinationsSkipped && (
+                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    )}
+                  </button>
                 </div>
               )}
             </div>
