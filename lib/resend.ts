@@ -5,7 +5,15 @@
 
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy-initialise so the module loads without errors at build time
+// (RESEND_API_KEY may not be available during `next build`)
+let _resend: Resend | null = null
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 
 const FROM_EMAIL = 'TripAmigos <info@tripamigos.co>'
 
@@ -191,7 +199,7 @@ export async function sendInviteEmail({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const inviteUrl = `${baseUrl}/invite/${inviteToken}`
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
     subject: `${organiserName} invited you to ${tripName} — share your preferences`,
@@ -231,7 +239,7 @@ export async function sendReminderEmail({
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const inviteUrl = `${baseUrl}/invite/${inviteToken}`
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from: FROM_EMAIL,
     to,
     subject: `Reminder: ${organiserName} is waiting for your preferences for ${tripName}`,
