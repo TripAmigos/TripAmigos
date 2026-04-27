@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { regionLabels } from '@/lib/destinations'
+import GolfScorecard from './golf-scorecard'
 
 interface Member {
   id: string
@@ -125,7 +126,8 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
   const supabase = createClient()
   const [members, setMembers] = useState<Member[]>(initialMembers)
   const [showBookedBanner, setShowBookedBanner] = useState(justBooked)
-  const [activeTab, setActiveTab] = useState<'overview' | 'preferences' | 'members'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'preferences' | 'members' | 'scorecard'>('overview')
+  const isGolfTrip = trip.trip_types?.includes('golf')
   const [nudgedMembers, setNudgedMembers] = useState<string[]>([])
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [showInviteLinks, setShowInviteLinks] = useState(false)
@@ -1560,17 +1562,17 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
 
       {/* Tab navigation — organiser only, not when booked */}
       {isOrganiser && trip.status !== 'booked' && <div className="flex gap-1 bg-bg-soft rounded-card p-1">
-        {(['overview', 'preferences', 'members'] as const).map((tab) => (
+        {(['overview', 'preferences', 'members', ...(isGolfTrip ? ['scorecard'] : [])] as const).map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => setActiveTab(tab as any)}
             className={`flex-1 py-2 px-4 rounded-input text-sm font-medium transition-all ${
               activeTab === tab
                 ? 'bg-white text-primary shadow-sm'
                 : 'text-text-secondary hover:text-primary'
             }`}
           >
-            {tab === 'overview' ? 'Overview' : tab === 'preferences' ? 'Preferences' : 'Members'}
+            {tab === 'overview' ? 'Overview' : tab === 'preferences' ? 'Preferences' : tab === 'members' ? 'Members' : '⛳ Scorecard'}
           </button>
         ))}
       </div>}
@@ -2296,6 +2298,27 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* SCORECARD TAB — golf trips only, visible to everyone */}
+      {isGolfTrip && activeTab === 'scorecard' && (
+        <GolfScorecard tripId={trip.id} members={members} />
+      )}
+
+      {/* Scorecard tab for non-organisers on golf trips */}
+      {!isOrganiser && isGolfTrip && (
+        <div className="flex gap-1 bg-bg-soft rounded-card p-1">
+          <button
+            onClick={() => setActiveTab('scorecard')}
+            className={`flex-1 py-2 px-4 rounded-input text-sm font-medium transition-all ${
+              activeTab === 'scorecard'
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-text-secondary hover:text-primary'
+            }`}
+          >
+            ⛳ Scorecard
+          </button>
         </div>
       )}
     </div>
