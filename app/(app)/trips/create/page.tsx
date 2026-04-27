@@ -117,6 +117,7 @@ export default function CreateTripPage() {
   const [shortlistedCities, setShortlistedCities] = useState<string[]>([])
   const [showShortlistDropdown, setShowShortlistDropdown] = useState(false)
   const [destinationsSkipped, setDestinationsSkipped] = useState(false)
+  const [presetsApplied, setPresetsApplied] = useState(false)
 
   // Step 2: Attendees & Preferences
   const [attendees, setAttendees] = useState<Attendee[]>([])
@@ -208,6 +209,8 @@ export default function CreateTripPage() {
       setShortlistedCities(preset)
       setShortlistInput('')
       setShowShortlistDropdown(false)
+      setPresetsApplied(true)
+      setDestinationsSkipped(false)
     }
   }
 
@@ -535,9 +538,6 @@ export default function CreateTripPage() {
                         : 'border-border hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-amber-100 text-amber-700 mb-2">
-                      Fastest to book
-                    </span>
                     <div className="text-sm font-bold text-primary mb-2">One card</div>
                     <p className="text-sm font-semibold text-primary mb-1">I'll collect and pay</p>
                     <p className="text-xs text-text-secondary leading-relaxed">
@@ -559,9 +559,6 @@ export default function CreateTripPage() {
                         : 'border-border hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-blue-100 text-blue-700 mb-2">
-                      Most popular
-                    </span>
                     <div className="text-sm font-bold text-primary mb-2">Split</div>
                     <p className="text-sm font-semibold text-primary mb-1">Everyone pays their share</p>
                     <p className="text-xs text-text-secondary leading-relaxed">
@@ -774,110 +771,37 @@ export default function CreateTripPage() {
 
                   {!destinationsSkipped && (
                     <>
-                      {/* Preset buttons */}
+                      {/* Preset buttons — large with tick */}
                       {TRIP_TYPE_PRESETS[tripType] && (
-                        <div>
-                          <button
-                            type="button"
-                            onClick={handleApplyPreset}
-                            className="w-full p-3 rounded-card border border-border bg-white hover:bg-bg-soft transition-colors text-sm font-medium text-primary text-left"
-                          >
-                            {TRIP_TYPE_EMOJIS[tripType]} Popular {tripType} destinations
-                          </button>
-                          <p className="text-xs text-text-muted mt-2">Click to auto-fill {tripType} hotspots. You can still add or remove destinations.</p>
-                        </div>
-                      )}
-
-                      {/* Destination Scope */}
-                      <div>
-                        <label className="block text-sm font-medium text-primary mb-3">
-                          Where should we look?
-                        </label>
-                        <p className="text-xs text-text-secondary mb-3">
-                          This narrows down the options your group can choose from
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {(Object.keys(regionLabels) as Region[]).map((region) => (
-                            <button
-                              key={region}
-                              type="button"
-                              onClick={() => setDestinationScope(region)}
-                              className={`relative p-3 rounded-card border-2 text-center transition-all ${
-                                destinationScope === region
-                                  ? 'border-accent bg-accent-light'
-                                  : 'border-border hover:border-gray-300 bg-white'
-                              }`}
-                            >
-                              <div className="text-lg mb-1">{regionIcons[region]}</div>
-                              <p className="text-xs font-medium text-primary">{regionLabels[region]}</p>
-                              {destinationScope === region && (
-                                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-accent flex items-center justify-center">
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Shortlisted Cities */}
-                      <div>
-                        <label className="block text-sm font-medium text-primary mb-2">
-                          Shortlist 3–5 destinations for your group to vote on
-                        </label>
-                        <p className="text-xs text-text-secondary mb-3">
-                          Your crew will pick their favourites from this list — guaranteed overlap
-                        </p>
-                        <div className="relative">
-                          <div className="relative">
-                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                            <input
-                              type="text"
-                              value={shortlistInput}
-                              onChange={(e) => {
-                                setShortlistInput(e.target.value)
-                                setShowShortlistDropdown(true)
-                              }}
-                              onFocus={() => setShowShortlistDropdown(true)}
-                              placeholder="Search cities to add..."
-                              disabled={shortlistedCities.length >= 5}
-                              className="w-full pl-10 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted disabled:opacity-50"
-                            />
-                          </div>
-
-                          {showShortlistDropdown && shortlistedCities.length < 5 && (
-                            <div className="absolute z-10 w-full mt-1 bg-white border border-border rounded-card shadow-lg max-h-48 overflow-y-auto">
-                              {searchDestinations(shortlistInput, destinationScope)
-                                .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
-                                .map((dest) => (
-                                  <button
-                                    key={`${dest.city}-${dest.country}`}
-                                    type="button"
-                                    onClick={() => {
-                                      const label = `${dest.city}, ${dest.country}`
-                                      setShortlistedCities([...shortlistedCities, label])
-                                      setShortlistInput('')
-                                      setShowShortlistDropdown(false)
-                                    }}
-                                    className="w-full px-4 py-2.5 text-left hover:bg-bg-soft transition-colors border-b border-border last:border-b-0"
-                                  >
-                                    <p className="text-sm font-medium text-primary">{dest.city}</p>
-                                    <p className="text-xs text-text-secondary">{dest.country}</p>
-                                  </button>
-                                ))}
-                              {searchDestinations(shortlistInput, destinationScope)
-                                .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
-                                .length === 0 && (
-                                <div className="px-4 py-3 text-sm text-text-muted">
-                                  No matching destinations found
-                                </div>
+                        <button
+                          type="button"
+                          onClick={handleApplyPreset}
+                          className={`relative w-full p-4 rounded-card border-2 text-left transition-all ${
+                            presetsApplied
+                              ? 'border-accent bg-accent-light'
+                              : 'border-border hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                              presetsApplied ? 'bg-accent border-accent' : 'border-gray-300'
+                            }`}>
+                              {presetsApplied && (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                               )}
                             </div>
-                          )}
-                        </div>
+                            <div>
+                              <p className="text-sm font-semibold text-primary">{TRIP_TYPE_EMOJIS[tripType]} Popular {tripType} destinations</p>
+                              <p className="text-xs text-text-secondary mt-0.5">Auto-fill curated {tripType} hotspots — you can still add or remove</p>
+                            </div>
+                          </div>
+                        </button>
+                      )}
 
-                        {shortlistedCities.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-3">
+                      {/* Show selected cities from preset */}
+                      {shortlistedCities.length > 0 && (
+                        <div>
+                          <div className="flex flex-wrap gap-2">
                             {shortlistedCities.map((city, i) => (
                               <span
                                 key={city}
@@ -885,17 +809,126 @@ export default function CreateTripPage() {
                               >
                                 <span className="w-5 h-5 rounded-full bg-accent text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>
                                 {city}
-                                <button type="button" onClick={() => setShortlistedCities(shortlistedCities.filter(c => c !== city))} className="hover:text-red-600 ml-0.5">
+                                <button type="button" onClick={() => {
+                                  const updated = shortlistedCities.filter(c => c !== city)
+                                  setShortlistedCities(updated)
+                                  if (updated.length === 0) setPresetsApplied(false)
+                                }} className="hover:text-red-600 ml-0.5">
                                   <X size={14} />
                                 </button>
                               </span>
                             ))}
                           </div>
-                        )}
-                        <p className="text-xs text-text-muted mt-2">
-                          {shortlistedCities.length}/5 selected · {shortlistedCities.length < 3 ? `Add ${3 - shortlistedCities.length} more` : 'Looking good!'}
-                        </p>
-                      </div>
+                          <p className="text-xs text-text-muted mt-2">
+                            {shortlistedCities.length}/5 selected · {shortlistedCities.length < 3 ? `Add ${3 - shortlistedCities.length} more` : 'Looking good!'}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Manual search — shown when no presets applied, or user wants to add more */}
+                      {!presetsApplied && (
+                        <>
+                          {/* Destination Scope */}
+                          <div>
+                            <label className="block text-sm font-medium text-primary mb-3">
+                              Where should we look?
+                            </label>
+                            <p className="text-xs text-text-secondary mb-3">
+                              This narrows down the options your group can choose from
+                            </p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              {(Object.keys(regionLabels) as Region[]).map((region) => (
+                                <button
+                                  key={region}
+                                  type="button"
+                                  onClick={() => setDestinationScope(region)}
+                                  className={`relative p-3 rounded-card border-2 text-center transition-all ${
+                                    destinationScope === region
+                                      ? 'border-accent bg-accent-light'
+                                      : 'border-border hover:border-gray-300 bg-white'
+                                  }`}
+                                >
+                                  <div className="text-lg mb-1">{regionIcons[region]}</div>
+                                  <p className="text-xs font-medium text-primary">{regionLabels[region]}</p>
+                                  {destinationScope === region && (
+                                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-accent flex items-center justify-center">
+                                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Shortlisted Cities search */}
+                          <div>
+                            <label className="block text-sm font-medium text-primary mb-2">
+                              Shortlist 3–5 destinations for your group to vote on
+                            </label>
+                            <p className="text-xs text-text-secondary mb-3">
+                              Your crew will pick their favourites from this list — guaranteed overlap
+                            </p>
+                            <div className="relative">
+                              <div className="relative">
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                                <input
+                                  type="text"
+                                  value={shortlistInput}
+                                  onChange={(e) => {
+                                    setShortlistInput(e.target.value)
+                                    setShowShortlistDropdown(true)
+                                  }}
+                                  onFocus={() => setShowShortlistDropdown(true)}
+                                  placeholder="Search cities to add..."
+                                  disabled={shortlistedCities.length >= 5}
+                                  className="w-full pl-10 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted disabled:opacity-50"
+                                />
+                              </div>
+
+                              {showShortlistDropdown && shortlistedCities.length < 5 && (
+                                <div className="absolute z-10 w-full mt-1 bg-white border border-border rounded-card shadow-lg max-h-48 overflow-y-auto">
+                                  {searchDestinations(shortlistInput, destinationScope)
+                                    .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
+                                    .map((dest) => (
+                                      <button
+                                        key={`${dest.city}-${dest.country}`}
+                                        type="button"
+                                        onClick={() => {
+                                          const label = `${dest.city}, ${dest.country}`
+                                          setShortlistedCities([...shortlistedCities, label])
+                                          setShortlistInput('')
+                                          setShowShortlistDropdown(false)
+                                        }}
+                                        className="w-full px-4 py-2.5 text-left hover:bg-bg-soft transition-colors border-b border-border last:border-b-0"
+                                      >
+                                        <p className="text-sm font-medium text-primary">{dest.city}</p>
+                                        <p className="text-xs text-text-secondary">{dest.country}</p>
+                                      </button>
+                                    ))}
+                                  {searchDestinations(shortlistInput, destinationScope)
+                                    .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
+                                    .length === 0 && (
+                                    <div className="px-4 py-3 text-sm text-text-muted">
+                                      No matching destinations found
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Add more / choose own — when presets are applied */}
+                      {presetsApplied && shortlistedCities.length < 5 && (
+                        <button
+                          type="button"
+                          onClick={() => setPresetsApplied(false)}
+                          className="text-sm text-accent font-medium hover:underline"
+                        >
+                          + Add your own destinations
+                        </button>
+                      )}
                     </>
                   )}
 
