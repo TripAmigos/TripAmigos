@@ -46,7 +46,6 @@ const NATIONALITIES = [
 
 // Common must-haves and dealbreakers for quick selection
 const COMMON_MUST_HAVES = ['Pool', 'Wi-Fi', 'Near the beach', 'Air conditioning', 'Balcony', 'Kitchen', 'Gym', 'Parking', 'City centre', 'Sea view', 'Breakfast included', 'Pet friendly']
-const COMMON_DEALBREAKERS = ['No hostels', 'No red-eye flights', 'No shared bathrooms', 'No long layovers', 'No budget airlines', 'No early departures', 'No overnight travel', 'No buses']
 
 // Searchable dropdown component
 function SearchableDropdown({ value, onChange, options, placeholder, label }: {
@@ -173,7 +172,6 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
       return [...prev, value]
     })
   }
-  const [dealbreakers, setDealbreakers] = useState<string[]>([])
   const [mustHaves, setMustHaves] = useState<string[]>([])
 
   // Opt-out: attendee can skip flights or hotel
@@ -332,7 +330,7 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
         p_transport_preference: transportPreference || null,
         p_direct_flights_only: directFlightsOnly,
         p_flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
-        p_dealbreakers: dealbreakers.length > 0 ? dealbreakers : null,
+        p_dealbreakers: null,
         p_must_haves: mustHaves.length > 0 ? mustHaves : null,
       })
 
@@ -694,31 +692,6 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
                         selected
                           ? 'bg-green-50 border-green-300 text-green-700'
                           : 'bg-white border-border text-text-secondary hover:border-green-300'
-                      }`}
-                    >
-                      {selected && '✓ '}{item}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Dealbreakers — selectable chips */}
-            <div className="bg-white border border-border rounded-card p-5 space-y-3">
-              <label className="block text-sm font-medium text-primary">Dealbreakers</label>
-              <p className="text-xs text-text-secondary">Anything that would ruin the trip for you?</p>
-              <div className="flex flex-wrap gap-2">
-                {COMMON_DEALBREAKERS.map((item) => {
-                  const selected = dealbreakers.includes(item)
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => selected ? setDealbreakers(dealbreakers.filter(d => d !== item)) : setDealbreakers([...dealbreakers, item])}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                        selected
-                          ? 'bg-red-50 border-red-300 text-red-700'
-                          : 'bg-white border-border text-text-secondary hover:border-red-300'
                       }`}
                     >
                       {selected && '✓ '}{item}

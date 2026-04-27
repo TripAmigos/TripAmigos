@@ -357,7 +357,7 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
   // Aggregate preference data (memoised so it doesn't recompute on every tab switch)
   const {
     accommodationCounts, transportCounts, flightTimeCounts, destinationCounts,
-    budgets, mustHavesAll, dealbreakersAll, directFlightVotes,
+    budgets, mustHavesAll, directFlightVotes,
     sortedDestinations, topDestination,
     budgetOverlapMin, budgetOverlapMax, hasBudgetOverlap,
   } = useMemo(() => {
@@ -367,7 +367,6 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
     const dest: Record<string, number> = {}
     const bud: { min: number; max: number }[] = []
     const mh: Record<string, number> = {}
-    const db: Record<string, number> = {}
     let dfv = 0
 
     preferences.filter(p => p.is_submitted).forEach((p) => {
@@ -385,7 +384,6 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
       if (p.preferred_destinations) p.preferred_destinations.forEach((d) => { dest[d] = (dest[d] || 0) + 1 })
       if (p.budget_min != null && p.budget_max != null) bud.push({ min: p.budget_min, max: p.budget_max })
       if (p.must_haves) p.must_haves.forEach((m) => { mh[m] = (mh[m] || 0) + 1 })
-      if (p.dealbreakers) p.dealbreakers.forEach((d) => { db[d] = (db[d] || 0) + 1 })
       if (p.direct_flights_only) dfv++
     })
 
@@ -395,7 +393,7 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
 
     return {
       accommodationCounts: acc, transportCounts: trans, flightTimeCounts: flight,
-      destinationCounts: dest, budgets: bud, mustHavesAll: mh, dealbreakersAll: db,
+      destinationCounts: dest, budgets: bud, mustHavesAll: mh,
       directFlightVotes: dfv, sortedDestinations: sorted, topDestination: sorted[0],
       budgetOverlapMin: overlapMin, budgetOverlapMax: overlapMax,
       hasBudgetOverlap: overlapMin <= overlapMax && bud.length > 0,
@@ -1811,24 +1809,6 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
               </div>
             )}
 
-            {Object.keys(dealbreakersAll).length > 0 && (
-              <div className="bg-white border border-border rounded-card p-6 space-y-3">
-                <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Dealbreakers</h3>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(dealbreakersAll)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([item, count]) => (
-                      <span
-                        key={item}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-700 rounded-full text-sm font-medium"
-                      >
-                        🚫 {item}
-                        {count > 1 && <span className="text-xs text-red-500">×{count}</span>}
-                      </span>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {submittedCount === 0 && (

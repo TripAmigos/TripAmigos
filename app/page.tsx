@@ -148,7 +148,7 @@ export default function Home() {
                 </h3>
                 <p className="text-text-secondary leading-relaxed">
                   Give your trip a name, add everyone&apos;s email, and hit send. Each person gets a personal invite link
-                  where they fill in their budget, available dates, preferred destinations, airport, and any dealbreakers.
+                  where they fill in their budget, available dates, preferred destinations, airport, and must-haves.
                   No account needed for them &mdash; they just click and fill.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">

@@ -77,13 +77,6 @@ const MUST_HAVE_OPTIONS = [
   'Breakfast included', 'Sea view', 'Private bathroom',
 ]
 
-const DEALBREAKER_OPTIONS = [
-  'No hostels', 'No red-eye flights', 'No long layovers',
-  'No budget airlines', 'No overnight travel', 'No early morning departures',
-  'No more than 1 stop', 'No smoking accommodation', 'No party hostels',
-  'Not too remote', 'No self-catering only', 'No ground floor rooms',
-  'No shared bathrooms', 'No accommodation without reviews', 'No buses',
-]
 
 interface Attendee {
   id: string
@@ -151,9 +144,7 @@ export default function CreateTripPage() {
   const [budgetMax, setBudgetMax] = useState('')
   const [showCustomBudget, setShowCustomBudget] = useState(false)
   const [mustHaves, setMustHaves] = useState<string[]>([])
-  const [dealbreakers, setDealbreakers] = useState<string[]>([])
   const [showMustHaveDropdown, setShowMustHaveDropdown] = useState(false)
-  const [showDealbreakerDropdown, setShowDealbreakerDropdown] = useState(false)
 
   const filteredNationalities = useMemo(() => {
     if (!nationalitySearch) return NATIONALITIES.slice(0, 30)
@@ -361,7 +352,7 @@ export default function CreateTripPage() {
           transport_preference: transportPreference || null,
           direct_flights_only: directFlightsOnly,
           flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
-          dealbreakers: dealbreakers.length > 0 ? dealbreakers : null,
+          dealbreakers: null,
           must_haves: mustHaves.length > 0 ? mustHaves : null,
           is_submitted: true,
           submitted_at: new Date().toISOString(),
@@ -1572,7 +1563,7 @@ export default function CreateTripPage() {
                   )}
                   <button
                     type="button"
-                    onClick={() => { setShowMustHaveDropdown(!showMustHaveDropdown); setShowDealbreakerDropdown(false) }}
+                    onClick={() => { setShowMustHaveDropdown(!showMustHaveDropdown);  }}
                     className="w-full px-4 py-2 border border-border rounded-input bg-white text-left text-text-muted hover:border-gray-300 transition-colors flex items-center justify-between"
                   >
                     <span>{mustHaves.length > 0 ? 'Add more...' : 'Select must-haves...'}</span>
@@ -1601,56 +1592,6 @@ export default function CreateTripPage() {
                   <p className="text-xs text-text-muted mt-1">Things you absolutely need</p>
                 </div>
 
-                {/* Dealbreakers */}
-                <div className="relative">
-                  <label className="block text-sm font-medium text-primary mb-2">
-                    Dealbreakers
-                  </label>
-                  {dealbreakers.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {dealbreakers.map((item) => (
-                        <span
-                          key={item}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-medium"
-                        >
-                          {item}
-                          <button type="button" onClick={() => setDealbreakers(dealbreakers.filter(d => d !== item))} className="hover:text-red-600">
-                            <X size={14} />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => { setShowDealbreakerDropdown(!showDealbreakerDropdown); setShowMustHaveDropdown(false) }}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-left text-text-muted hover:border-gray-300 transition-colors flex items-center justify-between"
-                  >
-                    <span>{dealbreakers.length > 0 ? 'Add more...' : 'Select dealbreakers...'}</span>
-                    <Plus size={16} />
-                  </button>
-                  {showDealbreakerDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setShowDealbreakerDropdown(false)} />
-                      <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-card shadow-lg max-h-56 overflow-y-auto">
-                        {DEALBREAKER_OPTIONS.filter(opt => !dealbreakers.includes(opt)).map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => { setDealbreakers([...dealbreakers, opt]); setShowDealbreakerDropdown(false) }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-red-50 transition-colors border-b border-border last:border-0"
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                        {DEALBREAKER_OPTIONS.filter(opt => !dealbreakers.includes(opt)).length === 0 && (
-                          <div className="px-4 py-3 text-sm text-text-muted">All options selected</div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                  <p className="text-xs text-text-muted mt-1">Things that would rule out an option entirely</p>
-                </div>
               </div>
             </div>
           )}

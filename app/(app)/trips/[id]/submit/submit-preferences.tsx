@@ -39,8 +39,6 @@ export default function SubmitPreferences({ trip, tripMemberId, userId, alreadyS
       return [...prev, value]
     })
   }
-  const [dealbreakersInput, setDealbreakersInput] = useState('')
-  const [dealbreakers, setDealbreakers] = useState<string[]>([])
   const [mustHavesInput, setMustHavesInput] = useState('')
   const [mustHaves, setMustHaves] = useState<string[]>([])
 
@@ -52,11 +50,6 @@ export default function SubmitPreferences({ trip, tripMemberId, userId, alreadyS
     }
   }
 
-  const handleAddDealbreaker = () => {
-    const val = dealbreakersInput.trim()
-    if (val && !dealbreakers.includes(val)) setDealbreakers([...dealbreakers, val])
-    setDealbreakersInput('')
-  }
 
   const handleAddMustHave = () => {
     const val = mustHavesInput.trim()
@@ -83,7 +76,7 @@ export default function SubmitPreferences({ trip, tripMemberId, userId, alreadyS
         transport_preference: transportPreference || null,
         direct_flights_only: directFlightsOnly,
         flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
-        dealbreakers: dealbreakers.length > 0 ? dealbreakers : null,
+        dealbreakers: null,
         must_haves: mustHaves.length > 0 ? mustHaves : null,
         is_submitted: true,
         submitted_at: new Date().toISOString(),
@@ -329,26 +322,6 @@ export default function SubmitPreferences({ trip, tripMemberId, userId, alreadyS
               {mustHaves.map((item) => (
                 <span key={item} className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
                   {item}<button type="button" onClick={() => setMustHaves(mustHaves.filter(m => m !== item))} className="hover:text-red-600"><X size={14} /></button>
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Dealbreakers */}
-        <div>
-          <label className="block text-sm font-medium text-primary mb-2">Dealbreakers</label>
-          <div className="flex gap-2">
-            <input type="text" value={dealbreakersInput} onChange={(e) => setDealbreakersInput(e.target.value)} placeholder="e.g. No hostels, No red-eye flights"
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddDealbreaker() } }}
-              className="flex-1 px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted" />
-            <button type="button" onClick={handleAddDealbreaker} className="px-4 py-2 border border-border rounded-input hover:bg-bg-soft transition-colors"><Plus size={18} /></button>
-          </div>
-          {dealbreakers.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {dealbreakers.map((item) => (
-                <span key={item} className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-medium">
-                  {item}<button type="button" onClick={() => setDealbreakers(dealbreakers.filter(d => d !== item))} className="hover:text-red-600"><X size={14} /></button>
                 </span>
               ))}
             </div>
