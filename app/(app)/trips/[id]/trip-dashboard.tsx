@@ -373,7 +373,15 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
     preferences.filter(p => p.is_submitted).forEach((p) => {
       if (p.accommodation_type) acc[p.accommodation_type] = (acc[p.accommodation_type] || 0) + 1
       if (p.transport_preference) trans[p.transport_preference] = (trans[p.transport_preference] || 0) + 1
-      if (p.flight_time_preference) flight[p.flight_time_preference] = (flight[p.flight_time_preference] || 0) + 1
+      if (p.flight_time_preference) {
+        try {
+          const times = JSON.parse(p.flight_time_preference) as string[]
+          times.forEach(t => { flight[t] = (flight[t] || 0) + 1 })
+        } catch {
+          // Legacy single-value format
+          flight[p.flight_time_preference] = (flight[p.flight_time_preference] || 0) + 1
+        }
+      }
       if (p.preferred_destinations) p.preferred_destinations.forEach((d) => { dest[d] = (dest[d] || 0) + 1 })
       if (p.budget_min != null && p.budget_max != null) bud.push({ min: p.budget_min, max: p.budget_max })
       if (p.must_haves) p.must_haves.forEach((m) => { mh[m] = (mh[m] || 0) + 1 })

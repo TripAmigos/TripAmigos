@@ -165,7 +165,14 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
   const [accommodationRating, setAccommodationRating] = useState('')
   const [transportPreference, setTransportPreference] = useState('')
   const [directFlightsOnly, setDirectFlightsOnly] = useState(false)
-  const [flightTimePreference, setFlightTimePreference] = useState('')
+  const [flightTimePreferences, setFlightTimePreferences] = useState<string[]>([])
+  const toggleFlightTime = (value: string) => {
+    setFlightTimePreferences(prev => {
+      if (prev.includes(value)) return prev.filter(v => v !== value)
+      if (prev.length >= 2) return [prev[1], value]
+      return [...prev, value]
+    })
+  }
   const [dealbreakers, setDealbreakers] = useState<string[]>([])
   const [mustHaves, setMustHaves] = useState<string[]>([])
 
@@ -324,7 +331,7 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
         p_accommodation_rating_min: accommodationRating ? parseInt(accommodationRating) : null,
         p_transport_preference: transportPreference || null,
         p_direct_flights_only: directFlightsOnly,
-        p_flight_time_preference: flightTimePreference || null,
+        p_flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
         p_dealbreakers: dealbreakers.length > 0 ? dealbreakers : null,
         p_must_haves: mustHaves.length > 0 ? mustHaves : null,
       })
@@ -624,7 +631,7 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
               <div className="bg-white border border-border rounded-card p-5 space-y-4">
                 <p className="text-sm font-medium text-primary">Flight preferences</p>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-2">Preferred flight time</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-2">Preferred flight times <span className="text-text-muted font-normal">(pick up to 2)</span></label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { value: 'early_morning', label: 'Early morning', sub: 'Before 8am' },
@@ -632,8 +639,8 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
                       { value: 'afternoon', label: 'Afternoon', sub: '12pm – 6pm' },
                       { value: 'evening', label: 'Evening', sub: 'After 6pm' },
                     ].map((option) => (
-                      <button key={option.value} type="button" onClick={() => setFlightTimePreference(option.value)}
-                        className={`p-2 rounded-input border-2 text-center transition-all ${flightTimePreference === option.value ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'}`}>
+                      <button key={option.value} type="button" onClick={() => toggleFlightTime(option.value)}
+                        className={`p-2 rounded-input border-2 text-center transition-all ${flightTimePreferences.includes(option.value) ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'}`}>
                         <p className="text-xs font-medium text-primary">{option.label}</p>
                         <p className="text-[10px] text-text-secondary">{option.sub}</p>
                       </button>

@@ -132,7 +132,14 @@ export default function CreateTripPage() {
   const [destinationVotes, setDestinationVotes] = useState<string[]>([])
   const [transportPreference, setTransportPreference] = useState('')
   const [directFlightsOnly, setDirectFlightsOnly] = useState(false)
-  const [flightTimePreference, setFlightTimePreference] = useState('')
+  const [flightTimePreferences, setFlightTimePreferences] = useState<string[]>([])
+  const toggleFlightTime = (value: string) => {
+    setFlightTimePreferences(prev => {
+      if (prev.includes(value)) return prev.filter(v => v !== value)
+      if (prev.length >= 2) return [prev[1], value]
+      return [...prev, value]
+    })
+  }
   const [preferredAirport, setPreferredAirport] = useState('')
   const [hubSearchInput, setHubSearchInput] = useState('')
   const [showHubDropdown, setShowHubDropdown] = useState(false)
@@ -350,7 +357,7 @@ export default function CreateTripPage() {
           accommodation_rating_min: accommodationRating ? parseInt(accommodationRating) : null,
           transport_preference: transportPreference || null,
           direct_flights_only: directFlightsOnly,
-          flight_time_preference: flightTimePreference || null,
+          flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
           dealbreakers: dealbreakers.length > 0 ? dealbreakers : null,
           must_haves: mustHaves.length > 0 ? mustHaves : null,
           is_submitted: true,
@@ -1256,7 +1263,7 @@ export default function CreateTripPage() {
 
                     <div>
                       <label className="block text-xs font-medium text-text-secondary mb-2">
-                        Preferred flight time
+                        Preferred flight times <span className="text-text-muted font-normal">(pick up to 2)</span>
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {[
@@ -1268,9 +1275,9 @@ export default function CreateTripPage() {
                           <button
                             key={option.value}
                             type="button"
-                            onClick={() => setFlightTimePreference(option.value)}
+                            onClick={() => toggleFlightTime(option.value)}
                             className={`p-2 rounded-input border-2 text-center transition-all ${
-                              flightTimePreference === option.value
+                              flightTimePreferences.includes(option.value)
                                 ? 'border-accent bg-accent-light'
                                 : 'border-border hover:border-gray-300 bg-white'
                             }`}
