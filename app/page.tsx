@@ -45,12 +45,12 @@ export default function Home() {
 
             <div className="space-y-5">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl mx-auto">
-                You shouldn&apos;t need a degree in project management
-                <span className="block text-accent mt-1">to book a group trip.</span>
+                Group bookings,
+                <span className="block text-accent mt-1">made easy.</span>
               </h1>
               <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-                Chasing replies, juggling budgets, comparing flights at midnight &mdash;
-                we take that off your plate so you can enjoy the trip too.
+                Chasing replies, juggling budgets, comparing flights at midnight.
+                We take that off your plate so you can enjoy the trip too.
               </p>
             </div>
 
