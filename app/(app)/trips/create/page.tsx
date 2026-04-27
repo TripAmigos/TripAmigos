@@ -103,7 +103,7 @@ export default function CreateTripPage() {
   const [tripType, setTripType] = useState('vacation')
   const [paymentMethod, setPaymentMethod] = useState<'organiser_pays' | 'individual_pays' | ''>('')
   const [roomSharing, setRoomSharing] = useState<'shared' | 'individual' | ''>('')
-  const [costSplit, setCostSplit] = useState<'even' | 'exact' | ''>('')
+  // Cost split is always 'even' — exact split was removed for simplicity
   const [tripMode, setTripMode] = useState<TripMode>('collaborative')
   const [destinationScope, setDestinationScope] = useState<Region>('anywhere')
   const [shortlistInput, setShortlistInput] = useState('')
@@ -290,7 +290,7 @@ export default function CreateTripPage() {
           trip_types: tripType ? [tripType] : [],
           payment_method: paymentMethod,
           room_sharing: roomSharing || 'individual',
-          cost_split: costSplit || 'even',
+          cost_split: 'even',
           destination_scope: destinationScope,
           shortlisted_cities: destinationsSkipped ? [] : shortlistedCities,
           trip_mode: tripMode,
@@ -578,65 +578,7 @@ export default function CreateTripPage() {
                 )}
               </div>
 
-              {/* Cost Split — only if individual pays */}
-              {paymentMethod === 'individual_pays' && (
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-3">
-                    How should the cost be split?
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCostSplit('even')}
-                      className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                        costSplit === 'even'
-                          ? 'border-accent bg-accent-light'
-                          : 'border-border hover:border-gray-300 bg-white'
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-primary mb-1">Even split</p>
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        Total trip cost divided equally between everyone, regardless of individual flight prices.
-                      </p>
-                      {costSplit === 'even' && (
-                        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setCostSplit('exact')}
-                      className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                        costSplit === 'exact'
-                          ? 'border-accent bg-accent-light'
-                          : 'border-border hover:border-gray-300 bg-white'
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-primary mb-1">Pay what you owe</p>
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        Each person pays their actual travel cost plus an equal share of the hotel.
-                      </p>
-                      {costSplit === 'exact' && (
-                        <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        </div>
-                      )}
-                    </button>
-                  </div>
-
-                  {costSplit && (
-                    <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-bg-soft text-text-secondary border border-border">
-                      {costSplit === 'even' ? (
-                        <>Everyone pays the same amount. Works best when your group is travelling from similar distances and the price difference is small.</>
-                      ) : (
-                        <>People flying from further away will pay more for their transport. Hotel costs are always split equally across the group.</>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Cost split removed — always even split */}
 
               {/* Room Sharing */}
               <div>

@@ -181,7 +181,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
   const endDate = new Date(trip.date_to)
   const groupSize = trip.group_size || 4
   const roomSharing = trip.room_sharing || 'individual'
-  const costSplit = trip.cost_split || 'even'
+  // Cost split is always even — exact split feature was removed
   const roomCount = roomSharing === 'shared' ? Math.ceil(groupSize / 2) : groupSize
 
   // Covered members: their costs are redistributed to everyone else
@@ -1231,13 +1231,11 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             <p className="text-sm text-white/70">
               Per paying person
               {coveredCount > 0 ? ` (${payingHeadcount} paying, ${coveredCount} covered)` : ''}
-              {costSplit === 'exact' ? ' · varies by route' : ' · even split'}
+              {' · even split'}
             </p>
             <p className="text-lg font-bold">
               {payingHeadcount > 0
-                ? costSplit === 'even'
-                  ? `£${Math.round(grandTotal / payingHeadcount).toLocaleString()}`
-                  : `~£${Math.round(grandTotal / payingHeadcount).toLocaleString()}`
+                ? `£${Math.round(grandTotal / payingHeadcount).toLocaleString()}`
                 : '£0'
               }
             </p>
@@ -1245,11 +1243,6 @@ export default function TripOptions({ trip, preferences, members, userId, transp
           {coveredCount > 0 && (
             <p className="text-[11px] text-white/50 pt-1">
               {coveredMembers.map((m: any) => m.first_name || m.guest_name || 'A member').join(', ')}'s costs are split across the other {payingHeadcount} members
-            </p>
-          )}
-          {costSplit === 'exact' && (
-            <p className="text-[11px] text-white/50 pt-1">
-              Each person pays their actual transport cost + £{Math.round((selectedHotelOption?.totalPrice || 0) / payingHeadcount).toLocaleString()} hotel share
             </p>
           )}
           {roomSharing === 'shared' && (
