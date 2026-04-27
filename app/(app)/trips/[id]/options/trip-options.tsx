@@ -117,6 +117,12 @@ interface HotelOption {
   bookingUrl: string
   tier: 'budget' | 'mid-range' | 'premium'
   tierLabel: string
+  description: string
+  highlights: string[]
+  reviewBreakdown: { category: string; score: number }[]
+  checkInTime: string
+  checkOutTime: string
+  neighbourhood: string
 }
 
 // A "route" groups members travelling the same way from the same place
@@ -163,6 +169,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
 
   // UI state
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
+  const [expandedHotel, setExpandedHotel] = useState<string | null>(null)
   const [tiebreakChoice, setTiebreakChoice] = useState<string | null>(null)
 
   // Timer (for flight expiry)
@@ -1066,7 +1073,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
               <span>Hotels via Booking.com · Prices updated just now</span>
             </div>
             <div className="grid md:grid-cols-3 gap-4">
-              {hotelOptions.map(hotel => renderHotelCard(hotel, selectedHotel, setSelectedHotel))}
+              {hotelOptions.map(hotel => renderHotelCard(hotel, selectedHotel, setSelectedHotel, expandedHotel, setExpandedHotel))}
             </div>
           </>
         ) : (
@@ -1755,6 +1762,8 @@ function renderHotelCard(
   hotel: HotelOption,
   selectedHotel: string | null,
   setSelectedHotel: (id: string | null) => void,
+  expandedHotel: string | null,
+  setExpandedHotel: (id: string | null) => void,
 ) {
   const hotelTierConfig: Record<string, { tagColor: string; tag: string; bgColor: string; borderColor: string }> = {
     'budget': { tagColor: 'bg-green-600 text-white', tag: 'A', bgColor: 'bg-green-50', borderColor: 'border-green-200' },
@@ -1763,6 +1772,7 @@ function renderHotelCard(
   }
   const config = hotelTierConfig[hotel.tier] || hotelTierConfig['mid-range']
   const isSelected = selectedHotel === hotel.id
+  const isExpanded = expandedHotel === hotel.id
 
   return (
     <div
@@ -1815,6 +1825,144 @@ function renderHotelCard(
           </div>
         </div>
       </button>
+
+      {/* View details / collapse button */}
+      <div className="px-4 pb-3">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setExpandedHotel(isExpanded ? null : hotel.id) }}
+          className="w-full py-2 text-xs font-semibold text-accent hover:text-accent-hover border border-accent/20 hover:border-accent/40 rounded-input transition-colors flex items-center justify-center gap-1.5"
+        >
+          {isExpanded ? (
+            <><ChevronUp size={12} /> Hide details</>
+          ) : (
+            <><ChevronDown size={12} /> View details, reviews &amp; amenities</>
+          )}
+        </button>
+      </div>
+
+      {/* Expandable detail panel */}
+      {isExpanded && (
+        <div className="border-t border-border px-4 py-4 space-y-5 bg-bg-soft/50">
+
+          {/* Description */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-primary uppercase tracking-wider">About this hotel</h4>
+            <p className="text-sm text-text-secondary leading-relaxed">{hotel.description}</p>
+          </div>
+
+          {/* Highlights */}
+          {hotel.highlights && hotel.highlights.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Highlights</h4>
+              <div className="space-y-1.5">
+                {hotel.highlights.map((h, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check size={10} className="text-green-600" />
+                    </span>
+                    <span className="text-sm text-primary">{h}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Review breakdown */}
+          {hotel.reviewBreakdown && hotel.reviewBreakdown.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Guest reviews</h4>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {hotel.reviewBreakdown.map(({ category, score }) => (
+                  <div key={category} className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-text-secondary">{category}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${score >= 9 ? 'bg-green-500' : score >= 8 ? 'bg-blue-500' : score >= 7 ? 'bg-amber-500' : 'bg-red-400'}`}
+                          style={{ width: `${(score / 10) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-bold text-primary w-6 text-right">{score}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All amenities */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-primary uppercase tracking-wider">All amenities</h4>
+            <div className="flex flex-wrap gap-1.5">
+              {hotel.amenities.map(a => (
+                <span key={a} className="text-xs px-2.5 py-1 bg-white border border-border text-text-secondary rounded-full">{a}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Practical info */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-bold text-primary uppercase tracking-wider">Practical info</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white border border-border rounded-input p-3 space-y-1">
+                <p className="text-[10px] font-bold text-text-muted uppercase">Check-in</p>
+                <p className="text-sm font-semibold text-primary">{hotel.checkInTime || 'From 15:00'}</p>
+              </div>
+              <div className="bg-white border border-border rounded-input p-3 space-y-1">
+                <p className="text-[10px] font-bold text-text-muted uppercase">Check-out</p>
+                <p className="text-sm font-semibold text-primary">{hotel.checkOutTime || 'By 11:00'}</p>
+              </div>
+              <div className="bg-white border border-border rounded-input p-3 space-y-1">
+                <p className="text-[10px] font-bold text-text-muted uppercase">Room type</p>
+                <p className="text-sm font-semibold text-primary">{hotel.roomType}</p>
+              </div>
+              <div className="bg-white border border-border rounded-input p-3 space-y-1">
+                <p className="text-[10px] font-bold text-text-muted uppercase">Neighbourhood</p>
+                <p className="text-sm font-semibold text-primary">{hotel.neighbourhood || hotel.city}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Cancellation policy */}
+          <div className={`rounded-input p-3 ${hotel.freeCancellation ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
+            <div className="flex items-start gap-2">
+              {hotel.freeCancellation ? (
+                <>
+                  <Check size={14} className="text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-green-800">Free cancellation</p>
+                    <p className="text-xs text-green-700">Cancel for free up to 24 hours before check-in. No questions asked.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Info size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Non-refundable</p>
+                    <p className="text-xs text-amber-700">This rate is non-refundable. You will be charged the full amount if you cancel.</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* View on Booking.com button */}
+          <a
+            href={hotel.bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-input font-semibold text-sm transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink size={14} />
+            View photos &amp; reviews on Booking.com
+          </a>
+          <p className="text-[10px] text-text-muted text-center">
+            Opens in a new tab — come back here to confirm your choice
+          </p>
+        </div>
+      )}
 
       {isSelected && (
         <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-accent flex items-center justify-center z-10">
