@@ -130,8 +130,18 @@ export async function POST(request: NextRequest) {
       formatOption(categorised.premium, 'premium', 'Premium'),
     ].filter(Boolean)
 
+    // Build extra options (alternatives beyond the initial 3)
+    const { getExtraOffers } = await import('@/lib/duffel')
+    const extraOffersList = getExtraOffers(offers, categorised._usedIds, categorised._sorted, 3)
+    const extraTierLabels = ['Alternative 1', 'Alternative 2', 'Alternative 3']
+    const extraTierKeys = ['best-value', 'recommended', 'premium'] // cycle colours
+    const extraOptions = extraOffersList.map((offer, i) =>
+      formatOption(offer, extraTierKeys[i % 3], extraTierLabels[i])
+    ).filter(Boolean)
+
     return NextResponse.json({
       options,
+      extraOptions,
       offerRequestId,
       totalOffers: offers.length,
       ...(datesAdjusted && { datesAdjusted: true }),

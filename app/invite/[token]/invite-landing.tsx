@@ -340,6 +340,13 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
         return
       }
 
+      // Fire-and-forget: notify organiser if all preferences are now in
+      fetch('/api/notify-organiser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tripId: trip.id }),
+      }).catch(() => {})
+
       setMode('submitted')
     } catch (err) {
       setError('Something went wrong. Please try again.')

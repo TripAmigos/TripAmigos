@@ -128,9 +128,11 @@ interface TravelRoute {
   passengerCount: number
   // Results
   flightOptions: FlightOption[]
+  extraFlightOptions: FlightOption[]
   trainOptions: TrainOption[]
   searching: boolean
   selectedOptionId: string | null
+  showingExtras: boolean
   // Fallback airport info
   preferredAirport?: string   // IATA of original preferred airport (e.g. 'LGW')
   usedAirport?: string        // IATA of airport actually used (e.g. 'LHR' if LGW had no flights)
@@ -259,11 +261,13 @@ export default function TripOptions({ trip, preferences, members, userId, transp
           members: [],
           passengerCount: 0,
           flightOptions: [],
+          extraFlightOptions: [],
           trainOptions: [],
           // Drivers don't need search — mark as complete immediately
           searching: mode !== 'drive',
           // Drivers are auto-selected (no cost, no option to pick)
           selectedOptionId: mode === 'drive' ? 'self-arranged' : null,
+          showingExtras: false,
         }
       }
 
@@ -342,6 +346,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
               // Try the preferred airport first, then fallbacks in order
               const airportsToTry = getFallbackAirports(primaryIATA)
               let foundOptions: FlightOption[] = []
+              let foundExtras: FlightOption[] = []
               let usedIATA = primaryIATA
 
               for (const tryIATA of airportsToTry) {
@@ -364,6 +369,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                   const data = await res.json()
                   if (data.options?.length > 0) {
                     foundOptions = data.options
+                    foundExtras = data.extraOptions || []
                     usedIATA = tryIATA
                     break // Found flights, stop trying fallbacks
                   }
@@ -389,6 +395,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
               updatedRoutes[index] = {
                 ...updatedRoutes[index],
                 flightOptions: foundOptions,
+                extraFlightOptions: foundExtras,
                 searching: false,
                 preferredAirport: primaryIATA,
                 usedAirport: usedIATA,
@@ -511,10 +518,10 @@ export default function TripOptions({ trip, preferences, members, userId, transp
 
   const selectedHotelOption = hotelOptions.find(h => h.id === selectedHotel)
 
-  const tierConfig: Record<string, { tag: string; tagColor: string }> = {
-    'best-value': { tag: 'Option A', tagColor: 'bg-green-100 text-green-700' },
-    'recommended': { tag: 'Option B', tagColor: 'bg-accent-light text-accent' },
-    'premium': { tag: 'Option C', tagColor: 'bg-purple-100 text-purple-700' },
+  const tierConfig: Record<string, { tag: string; tagColor: string; bgColor: string; borderColor: string; label: string }> = {
+    'best-value': { tag: 'A', tagColor: 'bg-green-600 text-white', bgColor: 'bg-green-50', borderColor: 'border-green-200', label: 'Best Value' },
+    'recommended': { tag: 'B', tagColor: 'bg-accent text-white', bgColor: 'bg-blue-50', borderColor: 'border-blue-200', label: 'Recommended' },
+    'premium': { tag: 'C', tagColor: 'bg-purple-600 text-white', bgColor: 'bg-purple-50', borderColor: 'border-purple-200', label: 'Premium' },
   }
 
   // =====================================================
@@ -577,10 +584,10 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             <Check size={28} className="text-accent" />
           </div>
           <h1 className="text-3xl font-bold text-primary">
-            {hasTie && tiebreakChoice ? `${tiebreakChoice.split(',')[0]} it is!` : "Your group's options are in!"}
+            {hasTie && tiebreakChoice ? `${tiebreakChoice.split(',')[0]} it is!` : "Let's book your trip!"}
           </h1>
           <p className="text-text-secondary text-lg max-w-md mx-auto">
-            Everyone's voted. Now let's find the perfect trip to <strong className="text-primary">{destCity}</strong>.
+            Your group has spoken. We've matched everyone's preferences and found the best options for <strong className="text-primary">{destCity}</strong>.
           </p>
         </div>
 
@@ -723,7 +730,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             <div className="flex items-center gap-3 p-3 rounded-input bg-white border border-border">
               <div className="w-7 h-7 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
               <p className="text-sm text-primary font-medium">
-                {computedRoutes.length > 1 ? `Choose travel for ${computedRoutes.length} routes` : 'Choose your travel'}
+                {computedRoutes.length > 1 ? `Pick flights for ${computedRoutes.length} routes` : 'Pick your flights'}
               </p>
             </div>
             <div className="flex items-center gap-3 p-3 rounded-input bg-white border border-border">
@@ -732,7 +739,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             </div>
             <div className="flex items-center gap-3 p-3 rounded-input bg-white border border-border">
               <div className="w-7 h-7 rounded-full bg-gray-200 text-text-secondary flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
-              <p className="text-sm text-text-secondary">Confirm & book</p>
+              <p className="text-sm text-text-secondary">Review & pay</p>
             </div>
           </div>
         </div>
@@ -766,7 +773,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin" />
             <Plane size={24} className="absolute inset-0 m-auto text-accent" />
           </div>
-          <h2 className="text-xl font-bold text-primary">Finding options for your group...</h2>
+          <h2 className="text-xl font-bold text-primary">Searching live prices for your group...</h2>
           <p className="text-text-secondary text-sm">Checking live prices for {groupSize} people travelling to {destCity}.</p>
         </div>
       )
@@ -777,12 +784,12 @@ export default function TripOptions({ trip, preferences, members, userId, transp
         <StepIndicator current={2} />
 
         <div className="text-center space-y-2">
-          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 1 of 3</p>
-          <h1 className="text-3xl font-bold text-primary">Choose travel for your group</h1>
+          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 1 of 3 — Pick your flights</p>
+          <h1 className="text-3xl font-bold text-primary">Choose one option for each route</h1>
           <p className="text-text-secondary max-w-lg mx-auto">
             {routes.length === 1
-              ? `Here are 3 options that match your group's requirements for ${groupSize} people, ${routes[0].origin} → ${destCity}.`
-              : `Your group has ${routes.length} routes to ${destCity}. Here are options that match each route's requirements — pick one for each.`
+              ? `We've found 3 flight options for ${groupSize} people from ${routes[0].origin} to ${destCity}. Select Option A, B or C — or see more alternatives below.`
+              : `Your group has ${routes.length} routes to ${destCity}. Select one option per route — tap the card to choose it.`
             }
           </p>
         </div>
@@ -901,6 +908,26 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                     {route.flightOptions.map(option =>
                       renderFlightCard(option, tierConfig, route.selectedOptionId, (id) => setRouteSelection(route.id, id), expandedCard, setExpandedCard, destCity, startDate, endDate, timerExpired)
                     )}
+
+                    {/* See more options */}
+                    {route.extraFlightOptions.length > 0 && !route.showingExtras && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRoutes(prev => prev.map(r =>
+                            r.id === route.id ? { ...r, showingExtras: true } : r
+                          ))
+                        }}
+                        className="w-full py-3 text-sm font-semibold text-accent hover:text-accent-hover border-2 border-dashed border-accent/30 hover:border-accent/60 rounded-card transition-colors flex items-center justify-center gap-2"
+                      >
+                        <RefreshCw size={14} />
+                        See {route.extraFlightOptions.length} more flight option{route.extraFlightOptions.length !== 1 ? 's' : ''}
+                      </button>
+                    )}
+
+                    {route.showingExtras && route.extraFlightOptions.map(option =>
+                      renderFlightCard(option, tierConfig, route.selectedOptionId, (id) => setRouteSelection(route.id, id), expandedCard, setExpandedCard, destCity, startDate, endDate, timerExpired)
+                    )}
                   </div>
                 )
               )}
@@ -967,7 +994,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                 disabled={timerExpired && routes.some(r => r.mode === 'flight')}
                 className="w-full py-4 bg-accent hover:bg-accent-hover disabled:opacity-70 text-white rounded-card font-bold text-lg flex items-center justify-center gap-2 transition-colors shadow-lg"
               >
-                Next: choose your hotel <ArrowRight size={20} />
+                Next: pick your hotel <ArrowRight size={20} />
               </button>
             </div>
           ) : (
@@ -996,10 +1023,10 @@ export default function TripOptions({ trip, preferences, members, userId, transp
         </button>
 
         <div className="text-center space-y-2">
-          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 2 of 3</p>
-          <h1 className="text-3xl font-bold text-primary">Where to stay in {destCity}</h1>
+          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 2 of 3 — Pick your hotel</p>
+          <h1 className="text-3xl font-bold text-primary">Choose where to stay in {destCity}</h1>
           <p className="text-text-secondary max-w-lg mx-auto">
-            Here are 3 hotels that match your group's requirements — {roomCount} room{roomCount !== 1 ? 's' : ''} for {groupSize} guest{groupSize !== 1 ? 's' : ''}
+            Select Option A, B or C below — {roomCount} room{roomCount !== 1 ? 's' : ''} for {groupSize} guest{groupSize !== 1 ? 's' : ''}. Each option is based on your group's preferences.
             {roomSharing === 'shared' ? ' (sharing)' : ''}. You'll book through Booking.com.
           </p>
         </div>
@@ -1096,9 +1123,9 @@ export default function TripOptions({ trip, preferences, members, userId, transp
         </button>
 
         <div className="text-center space-y-2">
-          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 3 of 3</p>
-          <h1 className="text-3xl font-bold text-primary">Review & book</h1>
-          <p className="text-text-secondary">Here's everything for your trip to {destCity}. Let's lock it in.</p>
+          <p className="text-xs font-bold text-accent uppercase tracking-wider">Step 3 of 3 — Confirm & pay</p>
+          <h1 className="text-3xl font-bold text-primary">Review your trip to {destCity}</h1>
+          <p className="text-text-secondary">Here's everything you've selected. Check the details below and hit "Book now" to confirm.</p>
         </div>
 
         {/* Trip breakdown */}
@@ -1428,7 +1455,7 @@ function StepIndicator({ current }: { current: number }) {
 
 function renderTrainCard(
   option: TrainOption,
-  tierConfig: Record<string, { tag: string; tagColor: string }>,
+  tierConfig: Record<string, { tag: string; tagColor: string; bgColor: string; borderColor: string; label: string }>,
   selectedOption: string | null,
   setSelectedOption: (id: string) => void,
   expandedCard: string | null,
@@ -1450,13 +1477,17 @@ function renderTrainCard(
       }`}
     >
 
+      {/* Bold option header */}
+      <div className={`flex items-center gap-3 px-5 py-3 ${config.bgColor} border-b ${config.borderColor}`}>
+        <span className={`w-8 h-8 rounded-full ${config.tagColor} flex items-center justify-center text-sm font-black`}>{config.tag}</span>
+        <span className="text-lg font-bold text-primary">Option {config.tag}</span>
+        <span className="text-sm text-text-secondary">· {config.label}</span>
+        {option.class === 'first' && <span className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-100 text-amber-700">First Class</span>}
+      </div>
+
       <button type="button" onClick={() => setSelectedOption(option.id)} className="w-full text-left p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${config.tagColor}`}>{config.tag}</span>
-              {option.class === 'first' && <span className="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-100 text-amber-700">First Class</span>}
-            </div>
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center"><Train size={14} className="text-white" /></div>
               <h3 className="text-lg font-bold text-primary">{outbound.operator}</h3>
@@ -1582,7 +1613,7 @@ function renderTrainCard(
 
 function renderFlightCard(
   option: FlightOption,
-  tierConfig: Record<string, { tag: string; tagColor: string }>,
+  tierConfig: Record<string, { tag: string; tagColor: string; bgColor: string; borderColor: string; label: string }>,
   selectedOption: string | null,
   setSelectedOption: (id: string) => void,
   expandedCard: string | null,
@@ -1608,10 +1639,16 @@ function renderFlightCard(
       }`}
     >
 
+      {/* Bold option header */}
+      <div className={`flex items-center gap-3 px-5 py-3 ${config.bgColor} border-b ${config.borderColor}`}>
+        <span className={`w-8 h-8 rounded-full ${config.tagColor} flex items-center justify-center text-sm font-black`}>{config.tag}</span>
+        <span className="text-lg font-bold text-primary">Option {config.tag}</span>
+        <span className="text-sm text-text-secondary">· {config.label}</span>
+      </div>
+
       <button type="button" onClick={() => !timerExpired && setSelectedOption(option.offerId)} disabled={timerExpired} className="w-full text-left p-5 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${config.tagColor}`}>{config.tag}</span>
             <div className="flex items-center gap-2">
               {option.airline.logo && <img src={option.airline.logo} alt={option.airline.name} className="w-6 h-6 rounded" />}
               <h3 className="text-lg font-bold text-primary">{option.airline.name}</h3>
@@ -1719,10 +1756,10 @@ function renderHotelCard(
   selectedHotel: string | null,
   setSelectedHotel: (id: string | null) => void,
 ) {
-  const hotelTierConfig: Record<string, { tagColor: string }> = {
-    'budget': { tagColor: 'bg-green-100 text-green-700' },
-    'mid-range': { tagColor: 'bg-accent-light text-accent' },
-    'premium': { tagColor: 'bg-purple-100 text-purple-700' },
+  const hotelTierConfig: Record<string, { tagColor: string; tag: string; bgColor: string; borderColor: string }> = {
+    'budget': { tagColor: 'bg-green-600 text-white', tag: 'A', bgColor: 'bg-green-50', borderColor: 'border-green-200' },
+    'mid-range': { tagColor: 'bg-accent text-white', tag: 'B', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
+    'premium': { tagColor: 'bg-purple-600 text-white', tag: 'C', bgColor: 'bg-purple-50', borderColor: 'border-purple-200' },
   }
   const config = hotelTierConfig[hotel.tier] || hotelTierConfig['mid-range']
   const isSelected = selectedHotel === hotel.id
@@ -1735,6 +1772,13 @@ function renderHotelCard(
       }`}
     >
 
+      {/* Bold option header */}
+      <div className={`flex items-center gap-3 px-4 py-3 ${config.bgColor} border-b ${config.borderColor}`}>
+        <span className={`w-8 h-8 rounded-full ${config.tagColor} flex items-center justify-center text-sm font-black`}>{config.tag}</span>
+        <span className="text-lg font-bold text-primary">Option {config.tag}</span>
+        <span className="text-sm text-text-secondary">· {hotel.tierLabel}</span>
+      </div>
+
       <button type="button" onClick={() => setSelectedHotel(isSelected ? null : hotel.id)} className="w-full text-left">
         <div className="w-full h-36 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center relative">
           <Building2 size={28} className="text-gray-400" />
@@ -1745,11 +1789,8 @@ function renderHotelCard(
         </div>
 
         <div className="p-4 space-y-2.5">
-          <div className="flex items-center gap-2">
-            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${config.tagColor}`}>{hotel.tierLabel}</span>
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} size={9} className="fill-amber-400 text-amber-400" />)}
-            </div>
+          <div className="flex items-center gap-0.5">
+            {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} size={9} className="fill-amber-400 text-amber-400" />)}
           </div>
           <h3 className="text-base font-bold text-primary leading-tight">{hotel.name}</h3>
           <div className="flex items-center gap-1.5">

@@ -338,5 +338,18 @@ export function categoriseOffers(offers: DuffelOffer[], passengers: number): {
     bestValue: pick(bestValue, sorted),
     recommended: pick(recommended, directFlights.length > 0 ? directFlights : sorted),
     premium: pick(premium, [...sorted].reverse()),
+    _usedIds: usedIds,
+    _sorted: sorted,
   }
+}
+
+export function getExtraOffers(
+  offers: DuffelOffer[],
+  usedIds: Set<string>,
+  sorted: DuffelOffer[],
+  count: number = 3,
+): DuffelOffer[] {
+  return sorted
+    .filter(o => !usedIds.has(o.id))
+    .slice(0, count)
 }

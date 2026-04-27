@@ -175,6 +175,85 @@ function reminderEmailHtml({
 </html>`
 }
 
+function allPreferencesInEmailHtml({
+  organiserName,
+  tripName,
+  dateFrom,
+  dateTo,
+  destination,
+  memberCount,
+  optionsUrl,
+}: {
+  organiserName: string
+  tripName: string
+  dateFrom: string
+  dateTo: string
+  destination: string
+  memberCount: number
+  optionsUrl: string
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f8f9fb;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1a1a2e;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fb;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+
+        <!-- Header -->
+        <tr><td style="background:linear-gradient(135deg,#16a34a,#22c55e);padding:28px 32px;text-align:center;">
+          <span style="font-size:22px;font-weight:600;color:#ffffff;">Trip<span style="opacity:0.9;">Amigos</span></span>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:32px;">
+          <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#1a1a2e;">The votes are in! 🎉</h1>
+          <p style="margin:0 0 20px;font-size:15px;color:#6b7280;line-height:1.6;">
+            Hey ${organiserName}, great news — all <strong style="color:#1a1a2e;">${memberCount} members</strong> of <strong style="color:#1a1a2e;">${tripName}</strong> have submitted their preferences.
+          </p>
+
+          <!-- Trip summary -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;margin-bottom:24px;">
+            <tr><td style="padding:20px;">
+              <p style="margin:0 0 4px;font-size:18px;font-weight:700;color:#1a1a2e;">${tripName}</p>
+              <p style="margin:0;font-size:14px;color:#6b7280;">${dateFrom} – ${dateTo}${destination ? ` · ${destination}` : ''}</p>
+            </td></tr>
+          </table>
+
+          <p style="margin:0 0 24px;font-size:15px;color:#6b7280;line-height:1.6;">
+            We've matched everyone's choices and found the best flight and hotel options for your group. Click below to review and book.
+          </p>
+
+          <!-- CTA button -->
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr><td align="center">
+              <a href="${optionsUrl}" style="display:inline-block;padding:16px 36px;background:#16a34a;color:#ffffff;font-size:17px;font-weight:700;text-decoration:none;border-radius:10px;">
+                View options & book your trip →
+              </a>
+            </td></tr>
+          </table>
+
+          <p style="margin:20px 0 0;font-size:13px;color:#9ca3af;text-align:center;line-height:1.5;">
+            Flight prices are live — we recommend booking soon to lock in the best deals.
+          </p>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
+          <p style="margin:0;font-size:12px;color:#9ca3af;">
+            TripAmigos · Group trips, sorted.<br>
+            <a href="${optionsUrl}" style="color:#2563eb;text-decoration:none;">View in browser</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
 // =====================================================
 // SEND FUNCTIONS
 // =====================================================
@@ -254,6 +333,51 @@ export async function sendReminderEmail({
 
   if (error) {
     console.error('Failed to send reminder email:', error)
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
+export async function sendAllPreferencesInEmail({
+  to,
+  organiserName,
+  tripName,
+  dateFrom,
+  dateTo,
+  destination,
+  memberCount,
+  tripId,
+}: {
+  to: string
+  organiserName: string
+  tripName: string
+  dateFrom: string
+  dateTo: string
+  destination: string
+  memberCount: number
+  tripId: string
+}) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const optionsUrl = `${baseUrl}/trips/${tripId}/options`
+
+  const { data, error } = await getResend().emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `The votes are in! Time to book ${tripName}`,
+    html: allPreferencesInEmailHtml({
+      organiserName,
+      tripName,
+      dateFrom,
+      dateTo,
+      destination,
+      memberCount,
+      optionsUrl,
+    }),
+  })
+
+  if (error) {
+    console.error('Failed to send all-preferences-in email:', error)
     throw new Error(error.message)
   }
 

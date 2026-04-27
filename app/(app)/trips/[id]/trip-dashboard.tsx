@@ -1544,9 +1544,9 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
         submittedCount >= totalInvited ? (
           <button
             onClick={() => router.push(`/trips/${trip.id}/options`)}
-            className="w-full py-4 text-white rounded-card font-bold text-lg flex items-center justify-center gap-2 transition-colors shadow-lg bg-accent hover:bg-accent-hover animate-pulse hover:animate-none"
+            className="w-full py-5 text-white rounded-card font-bold text-xl flex items-center justify-center gap-3 transition-colors shadow-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 animate-pulse hover:animate-none"
           >
-            See my trip options →
+            🎉 The votes are in! Click to book your trip →
           </button>
         ) : (
           <div className="w-full py-4 bg-bg-soft border border-border rounded-card text-center space-y-1">
@@ -1554,7 +1554,7 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
               Waiting for everyone to respond ({submittedCount}/{totalInvited})
             </p>
             <p className="text-xs text-text-secondary">
-              Once all of your group has responded, click here to view your flight and hotel options
+              Once all of your group has responded, you'll be able to view flight and hotel options
             </p>
           </div>
         )
@@ -1701,16 +1701,16 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
 
           {submittedCount === totalInvited && totalInvited > 0 && (
             <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-card p-6 text-white text-center space-y-3">
-              <p className="text-3xl font-bold">✓</p>
-              <p className="text-xl font-bold">Everyone's preferences are in!</p>
+              <p className="text-3xl font-bold">🎉</p>
+              <p className="text-2xl font-bold">The votes are in!</p>
               <p className="text-sm text-white/80">
-                We've matched your group's votes and found the best options. Ready to see them?
+                All {totalInvited} members have submitted their preferences. We've matched everyone's choices and found the best flight and hotel options for your group.
               </p>
               <button
                 onClick={() => router.push(`/trips/${trip.id}/options`)}
-                className="mt-2 px-8 py-3 bg-white text-green-600 rounded-card font-bold text-base hover:bg-white/90 transition-colors shadow-lg"
+                className="mt-2 px-8 py-4 bg-white text-green-600 rounded-card font-bold text-lg hover:bg-white/90 transition-colors shadow-lg"
               >
-                See my trip options →
+                View options & book your trip →
               </button>
             </div>
           )}

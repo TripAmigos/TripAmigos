@@ -88,6 +88,13 @@ export default function SubmitPreferences({ trip, tripMemberId, userId, alreadyS
         return
       }
 
+      // Fire-and-forget: notify organiser if all preferences are now in
+      fetch('/api/notify-organiser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tripId: trip.id }),
+      }).catch(() => {}) // Don't block submission if notification fails
+
       setSubmitted(true)
     } catch (err) {
       setError('Something went wrong. Please try again.')
