@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Logo } from '@/components/Logo'
 import { Loader, Check, X } from 'lucide-react'
+import { allAirports } from '@/lib/airports'
 
 type Step = 'account' | 'profile' | 'preferences'
 
@@ -106,8 +107,18 @@ export default function SignupPage() {
           data: {
             full_name: fullName,
             phone,
+            preferred_airport: preferredAirport || null,
           },
         })
+
+        // Save airport to profiles table if provided
+        if (preferredAirport) {
+          await (supabase.from('profiles') as any)
+            .upsert({
+              id: authData.user.id,
+              preferred_airport: preferredAirport,
+            }, { onConflict: 'id' })
+        }
 
         // Show success message and redirect
         setLoading(false)
@@ -313,14 +324,19 @@ export default function SignupPage() {
                 <label htmlFor="airport" className="block text-sm font-medium text-primary mb-2">
                   Your nearest airport
                 </label>
-                <input
+                <select
                   id="airport"
-                  type="text"
                   value={preferredAirport}
                   onChange={(e) => setPreferredAirport(e.target.value)}
-                  placeholder="e.g. Heathrow, Manchester, Edinburgh"
-                  className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                />
+                  className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
+                >
+                  <option value="">Select an airport...</option>
+                  {allAirports.map((a) => (
+                    <option key={a.iata} value={a.iata}>
+                      {a.city} — {a.name} ({a.iata})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-4">

@@ -1,14 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Loader, Check, AlertTriangle, ArrowLeft } from 'lucide-react'
+import { Loader, Check, AlertTriangle, ArrowLeft, Plane } from 'lucide-react'
 import Link from 'next/link'
+import { allAirports, getAirportLabel } from '@/lib/airports'
 
 export default function SettingsPage() {
   const router = useRouter()
   const supabase = createClient()
+
+  // Airport
+  const [airport, setAirport] = useState('')
+  const [airportLoading, setAirportLoading] = useState(false)
+  const [airportSuccess, setAirportSuccess] = useState(false)
+  const [airportError, setAirportError] = useState('')
+
+  // Load current airport on mount
+  useEffect(() => {
+    const loadAirport = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        // Try profiles table first, fall back to auth metadata
+        const { data: profile } = await (supabase.from('profiles') as any)
+          .select('preferred_airport')
+          .eq('id', user.id)
+          .single()
+        const saved = profile?.preferred_airport || user.user_metadata?.preferred_airport || ''
+        setAirport(saved)
+      }
+    }
+    loadAirport()
+  }, [])
 
   // Password reset
   const [newPassword, setNewPassword] = useState('')
@@ -28,6 +52,36 @@ export default function SettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [showDeleteSection, setShowDeleteSection] = useState(false)
+
+  const handleAirportSave = async () => {
+    setAirportError('')
+    setAirportSuccess(false)
+    setAirportLoading(true)
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not logged in')
+
+      // Save to auth metadata
+      await supabase.auth.updateUser({
+        data: { preferred_airport: airport || null },
+      })
+
+      // Save to profiles table
+      await (supabase.from('profiles') as any)
+        .upsert({
+          id: user.id,
+          preferred_airport: airport || null,
+        }, { onConflict: 'id' })
+
+      setAirportSuccess(true)
+      setTimeout(() => setAirportSuccess(false), 3000)
+    } catch (err: any) {
+      setAirportError(err.message || 'Failed to update airport')
+    }
+
+    setAirportLoading(false)
+  }
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -108,6 +162,46 @@ export default function SettingsPage() {
         </Link>
         <h1 className="text-3xl font-bold text-primary">Account settings</h1>
         <p className="text-text-secondary">Manage your password, email, and account.</p>
+      </div>
+
+      {/* Home Airport */}
+      <div className="bg-white border border-border rounded-card p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Plane size={16} className="text-accent" />
+          <h2 className="text-base font-bold text-primary">Home airport</h2>
+        </div>
+        <p className="text-xs text-text-secondary">This is used as your default departure airport when searching flights for trips.</p>
+        <div className="space-y-3">
+          <select
+            value={airport}
+            onChange={(e) => setAirport(e.target.value)}
+            className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
+          >
+            <option value="">Select an airport...</option>
+            {allAirports.map((a) => (
+              <option key={a.iata} value={a.iata}>
+                {a.city} — {a.name} ({a.iata})
+              </option>
+            ))}
+          </select>
+
+          {airportError && (
+            <p className="text-sm text-red-600">{airportError}</p>
+          )}
+          {airportSuccess && (
+            <div className="flex items-center gap-2 text-sm text-green-700">
+              <Check size={14} /> Airport updated successfully
+            </div>
+          )}
+
+          <button
+            onClick={handleAirportSave}
+            disabled={airportLoading}
+            className="px-5 py-2 bg-accent text-white rounded-input font-medium text-sm hover:bg-accent-hover disabled:opacity-50 transition-colors flex items-center gap-2"
+          >
+            {airportLoading ? <><Loader size={14} className="animate-spin" /> Saving...</> : 'Save airport'}
+          </button>
+        </div>
       </div>
 
       {/* Change Password */}

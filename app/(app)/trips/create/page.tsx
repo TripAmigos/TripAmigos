@@ -195,6 +195,12 @@ export default function CreateTripPage() {
   }
 
   const handleApplyPreset = () => {
+    if (presetsApplied) {
+      // Untick — clear the preset cities
+      setShortlistedCities([])
+      setPresetsApplied(false)
+      return
+    }
     const preset = TRIP_TYPE_PRESETS[tripType]
     if (preset) {
       setShortlistedCities(preset)
