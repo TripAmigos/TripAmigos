@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 import {
-  ArrowRight, Users, Receipt, Plane, Building2, Shield, Send,
+  ArrowRight, Receipt, Plane, Building2, Shield, Send,
   BarChart3, MessageSquare, Calendar, CreditCard, CheckCircle2,
   Vote, ArrowLeftRight
 } from 'lucide-react'
@@ -48,8 +48,7 @@ export default function Home() {
                 <span className="block text-accent mt-1">made easy.</span>
               </h1>
               <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-                Chasing replies, juggling budgets, comparing flights at midnight.
-                We take that off your plate so you can enjoy the trip too.
+                Built for the organiser. Used by the whole group.
               </p>
             </div>
 
@@ -238,7 +237,7 @@ export default function Home() {
                   Split expenses without the awkward maths
                 </h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Forget &ldquo;who owes who for the taxi?&rdquo; Log expenses as you go,
+                  Forget &ldquo;who owes who for the taxi?&rdquo; log expenses as you go,
                   and at the end of the trip we calculate the minimum number of transfers to settle everyone up.
                   Like Splitwise, but built right into your trip.
                 </p>
@@ -346,29 +345,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════ ORGANISER SPOTLIGHT ═══════════════════ */}
-        <section className="bg-white">
-          <div className="max-w-4xl mx-auto px-4 py-16 md:py-24 text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-              <Users size={28} className="text-accent" />
-            </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-primary text-balance">
-              Built for the organiser. <br className="hidden sm:block" />Used by the whole group.
-            </h2>
-            <p className="text-text-secondary max-w-2xl mx-auto leading-relaxed text-lg">
-              You create the trip. Your mates just click a link and fill in what they want.
-              No app download, no account needed, no &ldquo;can you resend that form.&rdquo;
-              Everyone&apos;s preferences land on your dashboard in real time.
-              When you&apos;re ready, compare flights and hotels and book the lot.
-            </p>
-            <p className="text-text-secondary max-w-2xl mx-auto leading-relaxed">
-              After booking, everyone gets their itinerary, and you can track expenses on the go.
-              At the end? One tap to see who owes who. You go from &ldquo;nightmare group chat admin&rdquo;
-              to &ldquo;absolute legend who sorted the whole trip.&rdquo;
-            </p>
           </div>
         </section>
 
