@@ -10,18 +10,18 @@ export default function HowItWorks() {
     <div className="min-h-screen flex flex-col bg-white">
       {/* Sticky Nav */}
       <nav className="border-b border-border bg-white/90 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
           <Logo size="md" linkTo="/" />
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <Link
               href="/login"
-              className="px-4 py-2 text-primary font-medium hover:text-accent transition-colors"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base text-primary font-medium hover:text-accent transition-colors"
             >
               Log in
             </Link>
             <Link
               href="/signup"
-              className="px-4 py-2 bg-accent text-white rounded-input font-medium hover:bg-accent-hover transition-colors"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-accent text-white rounded-input font-medium hover:bg-accent-hover transition-colors"
             >
               Start planning
             </Link>
@@ -33,11 +33,11 @@ export default function HowItWorks() {
         {/* Header */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 via-white to-white pointer-events-none" />
-          <div className="relative w-full max-w-5xl mx-auto px-4 pt-16 pb-10 md:pt-24 md:pb-16 text-center space-y-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary">
+          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-12 pb-8 md:pt-24 md:pb-16 text-center space-y-3 md:space-y-4">
+            <h1 className="text-2xl md:text-4xl font-bold text-primary">
               How it works
             </h1>
-            <p className="text-text-secondary max-w-lg mx-auto text-lg">
+            <p className="text-text-secondary max-w-lg mx-auto text-base md:text-lg">
               Three steps. No spreadsheets. No awkward &ldquo;can everyone fill this in&rdquo; messages.
             </p>
           </div>
@@ -45,9 +45,9 @@ export default function HowItWorks() {
 
         {/* Steps */}
         <section className="bg-white">
-          <div className="max-w-5xl mx-auto px-4 pb-16 md:pb-24 space-y-20">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 pb-12 md:pb-24 space-y-12 md:space-y-20">
             {/* Step 1 */}
-            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
               <div className="flex-1 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 1
@@ -55,7 +55,7 @@ export default function HowItWorks() {
                 <h2 className="text-xl md:text-2xl font-bold text-primary">
                   Create a trip &amp; invite the group
                 </h2>
-                <p className="text-text-secondary leading-relaxed">
+                <p className="text-sm md:text-base text-text-secondary leading-relaxed">
                   Give your trip a name, add everyone&apos;s email, and hit send. Each person gets a personal invite link
                   where they fill in their budget, available dates, preferred destinations, airport, and must-haves.
                   No account needed for them &mdash; they just click and fill.
@@ -114,7 +114,7 @@ export default function HowItWorks() {
             </div>
 
             {/* Step 2 */}
-            <div className="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
+            <div className="flex flex-col md:flex-row-reverse items-center gap-6 md:gap-16">
               <div className="flex-1 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 2
@@ -122,7 +122,7 @@ export default function HowItWorks() {
                 <h2 className="text-xl md:text-2xl font-bold text-primary">
                   See what the group actually wants
                 </h2>
-                <p className="text-text-secondary leading-relaxed">
+                <p className="text-sm md:text-base text-text-secondary leading-relaxed">
                   Once everyone&apos;s replied, your dashboard shows you the overlap &mdash; which destinations got the most votes,
                   the budget range that works for everyone, and the dates people are free.
                   No more guessing, no more &ldquo;I think most people said...&rdquo;
@@ -167,7 +167,7 @@ export default function HowItWorks() {
             </div>
 
             {/* Step 3 */}
-            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
               <div className="flex-1 space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 3
@@ -175,7 +175,7 @@ export default function HowItWorks() {
                 <h2 className="text-xl md:text-2xl font-bold text-primary">
                   Compare options &amp; book for everyone
                 </h2>
-                <p className="text-text-secondary leading-relaxed">
+                <p className="text-sm md:text-base text-text-secondary leading-relaxed">
                   We search flights from everyone&apos;s home airports and find hotels in the group&apos;s budget.
                   Prices, times, ratings &mdash; all side by side. Pick the winners,
                   hit book, and everyone gets their confirmation. You&apos;re officially a hero.
@@ -225,16 +225,16 @@ export default function HowItWorks() {
 
         {/* CTA */}
         <section className="bg-gradient-to-r from-accent to-blue-500">
-          <div className="max-w-3xl mx-auto px-4 py-16 md:py-20 text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-balance">
+          <div className="max-w-3xl mx-auto px-5 sm:px-4 py-12 md:py-20 text-center space-y-5 md:space-y-6">
+            <h2 className="text-2xl md:text-4xl font-bold text-white text-balance">
               Ready to try it?
             </h2>
-            <p className="text-blue-100 text-lg max-w-xl mx-auto">
+            <p className="text-blue-100 text-base md:text-lg max-w-xl mx-auto">
               Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
             </p>
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-blue-50 transition-colors shadow-lg text-lg"
+              className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-blue-50 transition-colors shadow-lg text-base sm:text-lg"
             >
               Plan your first trip
               <ArrowRight size={20} />

@@ -10,18 +10,18 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white">
       {/* Sticky Nav */}
       <nav className="border-b border-border bg-white/90 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
           <Logo size="md" linkTo="/" />
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <Link
               href="/login"
-              className="px-4 py-2 text-primary font-medium hover:text-accent transition-colors"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base text-primary font-medium hover:text-accent transition-colors"
             >
               Log in
             </Link>
             <Link
               href="/signup"
-              className="px-4 py-2 bg-accent text-white rounded-input font-medium hover:bg-accent-hover transition-colors"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base bg-accent text-white rounded-input font-medium hover:bg-accent-hover transition-colors"
             >
               Start planning
             </Link>
@@ -34,7 +34,7 @@ export default function Home() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 via-white to-white pointer-events-none" />
 
-          <div className="relative w-full max-w-5xl mx-auto px-4 pt-20 pb-14 md:pt-28 md:pb-20 text-center space-y-7">
+          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-10 md:pt-28 md:pb-20 text-center space-y-6 md:space-y-7">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium">
               <Plane size={14} />
@@ -46,7 +46,7 @@ export default function Home() {
                 Group trip booking
                 <span className="block text-accent mt-1">platform.</span>
               </h1>
-              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
                 TripAmigos brings together your group&apos;s travel, hotel and date preferences.
                 We then help you shortlist trips based on everyone&apos;s needs,
                 allowing you to book and manage everything and everyone, all in one place!
@@ -56,14 +56,14 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-accent text-white rounded-input font-semibold hover:bg-accent-hover transition-colors shadow-sm shadow-accent/20 text-lg"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-accent text-white rounded-input font-semibold hover:bg-accent-hover transition-colors shadow-sm shadow-accent/20 text-base sm:text-lg"
               >
                 Plan your first trip
                 <ArrowRight size={20} />
               </Link>
               <Link
                 href="/how-it-works"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-border text-primary rounded-input font-medium hover:bg-bg-soft transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 border border-border text-primary rounded-input font-medium hover:bg-bg-soft transition-colors"
               >
                 See how it works
               </Link>
@@ -73,8 +73,8 @@ export default function Home() {
 
         {/* ═══════════════════ PAIN POINTS ═══════════════════ */}
         <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-8">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-16">
+            <h2 className="text-xl md:text-3xl font-bold text-primary text-center mb-6 md:mb-8">
               Sound familiar?
             </h2>
 
@@ -100,14 +100,14 @@ export default function Home() {
 
         {/* ═══════════════════ HOW IT WORKS (compact) ═══════════════════ */}
         <section className="bg-white">
-          <div className="max-w-5xl mx-auto px-4 py-16 md:py-24">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-primary">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-xl md:text-3xl font-bold text-primary">
                 How it works
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8 md:gap-6">
               <div className="text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
                   <Send size={22} className="text-accent" />
@@ -162,8 +162,8 @@ export default function Home() {
 
         {/* ═══════════════════ EXPENSE SPLITTING ═══════════════════ */}
         <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-4 py-16 md:py-24">
-            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
+            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
               {/* Mockup: Expense tracker */}
               <div className="flex-1 max-w-sm w-full order-2 md:order-1">
                 <div className="bg-white rounded-card border border-border shadow-lg overflow-hidden p-5 space-y-3">
@@ -228,63 +228,63 @@ export default function Home() {
 
         {/* ═══════════════════ FEATURES GRID ═══════════════════ */}
         <section className="bg-white">
-          <div className="max-w-5xl mx-auto px-4 py-16 md:py-24">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-primary">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-xl md:text-3xl font-bold text-primary">
                 Everything the organiser needs
               </h2>
-              <p className="text-text-secondary mt-3 max-w-lg mx-auto">
+              <p className="text-sm md:text-base text-text-secondary mt-2 md:mt-3 max-w-lg mx-auto">
                 We built every feature around one question: what would make the organiser&apos;s life easier?
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Send size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">One-link invites</h3>
-                <p className="text-sm text-text-secondary">Send a personal link to each attendee. They fill in preferences without creating an account.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">One-link invites</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">Send a personal link to each attendee. They fill in preferences without creating an account.</p>
               </div>
 
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Vote size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">Group voting</h3>
-                <p className="text-sm text-text-secondary">Destinations, dates, budgets &mdash; everyone picks their favourites and you see the results instantly.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">Group voting</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">Destinations, dates, budgets &mdash; everyone picks their favourites and you see the results instantly.</p>
               </div>
 
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Plane size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">Multi-airport flight search</h3>
-                <p className="text-sm text-text-secondary">People flying from different cities? We search routes from everyone&apos;s home airport automatically.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">Multi-airport flight search</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">People flying from different cities? We search routes from everyone&apos;s home airport automatically.</p>
               </div>
 
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Building2 size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">Hotel matching</h3>
-                <p className="text-sm text-text-secondary">Accommodation options filtered to the group&apos;s budget &mdash; hostels to boutique hotels, you choose.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">Hotel matching</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">Accommodation options filtered to the group&apos;s budget &mdash; hostels to boutique hotels, you choose.</p>
               </div>
 
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Receipt size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">Expense splitting</h3>
-                <p className="text-sm text-text-secondary">Track who paid what during the trip. Settle up at the end with the fewest transfers possible.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">Expense splitting</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">Track who paid what during the trip. Settle up at the end with the fewest transfers possible.</p>
               </div>
 
-              <div className="bg-white rounded-card border border-border p-5 space-y-2.5 hover:border-accent/30 transition-colors">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+              <div className="bg-white rounded-card border border-border p-3.5 sm:p-5 space-y-2 sm:space-y-2.5 hover:border-accent/30 transition-colors">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 flex items-center justify-center">
                   <Shield size={18} className="text-accent" />
                 </div>
-                <h3 className="font-semibold text-primary text-sm">Organiser mode</h3>
-                <p className="text-sm text-text-secondary">Want full control? Skip the voting and plan everything yourself. Perfect for surprise trips or tight deadlines.</p>
+                <h3 className="font-semibold text-primary text-xs sm:text-sm">Organiser mode</h3>
+                <p className="text-xs sm:text-sm text-text-secondary hidden sm:block">Want full control? Skip the voting and plan everything yourself. Perfect for surprise trips or tight deadlines.</p>
               </div>
             </div>
           </div>
@@ -292,17 +292,17 @@ export default function Home() {
 
         {/* ═══════════════════ WHO IT'S FOR ═══════════════════ */}
         <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-4 py-16 md:py-24">
-            <div className="text-center mb-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-primary">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-xl md:text-3xl font-bold text-primary">
                 Whatever the trip, we&apos;ve got you
               </h2>
-              <p className="text-text-secondary mt-3 max-w-lg mx-auto">
+              <p className="text-sm md:text-base text-text-secondary mt-2 md:mt-3 max-w-lg mx-auto">
                 The trip changes. The audience changes. But the person pulling their hair out trying to organise it? That&apos;s always the same. That&apos;s who we built this for.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
               {[
                 { emoji: '🎉', label: 'Stag dos', desc: 'Herd the lads, book the chaos' },
                 { emoji: '💅', label: 'Hen parties', desc: 'Matching flights, not just robes' },
@@ -313,10 +313,10 @@ export default function Home() {
                 { emoji: '👨‍👩‍👧‍👦', label: 'Family holidays', desc: 'Grandma flies from Spain? Easy' },
                 { emoji: '🎂', label: 'Birthday trips', desc: 'Surprise-proof with organiser mode' },
               ].map((item) => (
-                <div key={item.label} className="bg-white rounded-card border border-border p-4 hover:border-accent/30 hover:shadow-sm transition-all text-center space-y-1.5">
-                  <span className="text-3xl block">{item.emoji}</span>
-                  <p className="text-sm font-semibold text-primary">{item.label}</p>
-                  <p className="text-[11px] text-text-secondary leading-snug">{item.desc}</p>
+                <div key={item.label} className="bg-white rounded-card border border-border p-3 sm:p-4 hover:border-accent/30 hover:shadow-sm transition-all text-center space-y-1">
+                  <span className="text-2xl sm:text-3xl block">{item.emoji}</span>
+                  <p className="text-xs sm:text-sm font-semibold text-primary">{item.label}</p>
+                  <p className="text-[10px] sm:text-[11px] text-text-secondary leading-snug">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -325,17 +325,17 @@ export default function Home() {
 
         {/* ═══════════════════ FINAL CTA ═══════════════════ */}
         <section className="bg-gradient-to-r from-accent to-blue-500">
-          <div className="max-w-3xl mx-auto px-4 py-16 md:py-20 text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-balance">
+          <div className="max-w-3xl mx-auto px-5 sm:px-4 py-12 md:py-20 text-center space-y-5 md:space-y-6">
+            <h2 className="text-2xl md:text-4xl font-bold text-white text-balance">
               Stop being the group&apos;s unpaid travel agent.
             </h2>
-            <p className="text-blue-100 text-lg max-w-xl mx-auto">
+            <p className="text-blue-100 text-base md:text-lg max-w-xl mx-auto">
               Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-blue-50 transition-colors shadow-lg text-lg"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-blue-50 transition-colors shadow-lg text-base sm:text-lg"
               >
                 Plan your first trip
                 <ArrowRight size={20} />
@@ -350,7 +350,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-10">
+        <div className="max-w-6xl mx-auto px-5 sm:px-4 py-6 md:py-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Logo size="sm" linkTo="/" />
