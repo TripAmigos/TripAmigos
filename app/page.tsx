@@ -2,8 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 import {
   ArrowRight, Receipt, Plane, Building2, Shield, Send,
-  BarChart3, MessageSquare, Calendar, CreditCard, CheckCircle2,
-  Vote, ArrowLeftRight
+  BarChart3, CheckCircle2, Vote, ArrowLeftRight
 } from 'lucide-react'
 
 export default function Home() {
@@ -74,53 +73,27 @@ export default function Home() {
 
         {/* ═══════════════════ PAIN POINTS ═══════════════════ */}
         <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-4 py-16 md:py-20">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-primary text-balance">
-                Sound familiar?
-              </h2>
-              <p className="text-text-secondary mt-3 max-w-xl mx-auto">
-                Every group trip has that one legend who volunteers to organise it. Then instantly regrets it.
-              </p>
-            </div>
+          <div className="max-w-5xl mx-auto px-4 py-12 md:py-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-8">
+              Sound familiar?
+            </h2>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-card border border-border p-6 space-y-3">
-                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
-                  <MessageSquare size={20} className="text-red-400" />
-                </div>
-                <h3 className="font-semibold text-primary">&ldquo;Where does everyone want to go?&rdquo;</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">
-                  You ask the group chat. 3 people reply. 2 just say &ldquo;anywhere warm.&rdquo;
-                  Someone throws in Bali. Someone else&apos;s budget is 200 quid. Good luck.
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-white rounded-card border border-border p-5 text-center">
+                <p className="font-semibold text-primary text-sm leading-relaxed">
+                  &ldquo;I don&apos;t mind where we go, you choose!&rdquo;
                 </p>
               </div>
-              <div className="bg-white rounded-card border border-border p-6 space-y-3">
-                <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
-                  <CreditCard size={20} className="text-orange-400" />
-                </div>
-                <h3 className="font-semibold text-primary">&ldquo;What&apos;s everyone&apos;s budget?&rdquo;</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">
-                  Half the group won&apos;t commit. The other half have wildly different numbers.
-                  You end up with 15 Skyscanner tabs open at midnight trying to make it work.
+              <div className="bg-white rounded-card border border-border p-5 text-center">
+                <p className="font-semibold text-primary text-sm leading-relaxed">
+                  &ldquo;I&apos;ve only got a £200 budget all in...&rdquo;
                 </p>
               </div>
-              <div className="bg-white rounded-card border border-border p-6 space-y-3">
-                <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
-                  <Calendar size={20} className="text-yellow-500" />
-                </div>
-                <h3 className="font-semibold text-primary">&ldquo;When is everyone free?&rdquo;</h3>
-                <p className="text-sm text-text-secondary leading-relaxed">
-                  Someone can&apos;t do June. Someone can only do weekends.
-                  By the time you nail down dates, the cheap flights are gone.
+              <div className="bg-white rounded-card border border-border p-5 text-center">
+                <p className="font-semibold text-primary text-sm leading-relaxed">
+                  &ldquo;I&apos;m not available until October, oh and I can only do Tuesdays and Wednesdays&rdquo;
                 </p>
               </div>
-            </div>
-
-            <div className="text-center mt-10">
-              <p className="text-primary font-semibold text-lg">
-                TripAmigos replaces all of that with one link.
-              </p>
             </div>
           </div>
         </section>
