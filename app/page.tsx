@@ -44,11 +44,13 @@ export default function Home() {
 
             <div className="space-y-5">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl mx-auto">
-                Group bookings,
-                <span className="block text-accent mt-1">made easy.</span>
+                Group trip booking
+                <span className="block text-accent mt-1">platform.</span>
               </h1>
               <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-                Built for the organiser. Used by the whole group.
+                TripAmigos brings together your group&apos;s travel, hotel and date preferences.
+                We then help you shortlist trips based on everyone&apos;s needs,
+                allowing you to book and manage everything and everyone, all in one place!
               </p>
             </div>
 
