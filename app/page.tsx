@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { Logo } from '@/components/Logo'
 import {
   ArrowRight, Receipt, Plane, Building2, Shield, Send,
-  BarChart3, CheckCircle2, Vote, ArrowLeftRight
+  BarChart3, CheckCircle2, Vote, ArrowLeftRight, Info,
+  ChevronLeft, ChevronRight
 } from 'lucide-react'
+import { TripTypeCarousel } from '@/components/TripTypeCarousel'
 
 export default function Home() {
   return (
@@ -30,17 +32,11 @@ export default function Home() {
       </nav>
 
       <main className="flex-1">
-        {/* ═══════════════════ HERO ═══════════════════ */}
+        {/* ═══════════════════ HERO + PAIN POINTS ═══════════════════ */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 via-white to-white pointer-events-none" />
 
-          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-10 md:pt-28 md:pb-20 text-center space-y-6 md:space-y-7">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium">
-              <Plane size={14} />
-              100% free &mdash; no booking fees, no catch
-            </div>
-
+          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-6 md:pt-28 md:pb-12 text-center space-y-6 md:space-y-7">
             <div className="space-y-5">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl mx-auto">
                 Group trip booking
@@ -51,6 +47,25 @@ export default function Home() {
                 We then help you shortlist trips based on everyone&apos;s needs,
                 allowing you to book and manage everything and everyone, all in one place!
               </p>
+            </div>
+
+            {/* Pain point quotes inline */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
+              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
+                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
+                  &ldquo;I don&apos;t mind where we go, you choose!&rdquo;
+                </p>
+              </div>
+              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
+                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
+                  &ldquo;I&apos;ve only got a £200 budget all in...&rdquo;
+                </p>
+              </div>
+              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
+                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
+                  &ldquo;I&apos;m not available until October...&rdquo;
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -71,35 +86,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════ PAIN POINTS ═══════════════════ */}
-        <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-16">
-            <h2 className="text-xl md:text-3xl font-bold text-primary text-center mb-6 md:mb-8">
-              Sound familiar?
-            </h2>
-
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-card border border-border p-5 text-center">
-                <p className="font-semibold text-primary text-sm leading-relaxed">
-                  &ldquo;I don&apos;t mind where we go, you choose!&rdquo;
-                </p>
-              </div>
-              <div className="bg-white rounded-card border border-border p-5 text-center">
-                <p className="font-semibold text-primary text-sm leading-relaxed">
-                  &ldquo;I&apos;ve only got a £200 budget all in...&rdquo;
-                </p>
-              </div>
-              <div className="bg-white rounded-card border border-border p-5 text-center">
-                <p className="font-semibold text-primary text-sm leading-relaxed">
-                  &ldquo;I&apos;m not available until October, oh and I can only do Tuesdays and Wednesdays&rdquo;
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* ═══════════════════ HOW IT WORKS (compact) ═══════════════════ */}
-        <section className="bg-white">
+        <section className="bg-white border-t border-border">
           <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
             <div className="text-center mb-8 md:mb-12">
               <h2 className="text-xl md:text-3xl font-bold text-primary">
@@ -109,9 +97,6 @@ export default function Home() {
 
             <div className="grid md:grid-cols-3 gap-8 md:gap-6">
               <div className="text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-                  <Send size={22} className="text-accent" />
-                </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 1
                 </div>
@@ -122,9 +107,6 @@ export default function Home() {
               </div>
 
               <div className="text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-                  <BarChart3 size={22} className="text-accent" />
-                </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 2
                 </div>
@@ -135,9 +117,6 @@ export default function Home() {
               </div>
 
               <div className="text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-                  <CheckCircle2 size={22} className="text-accent" />
-                </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-bold uppercase tracking-wide">
                   Step 3
                 </div>
@@ -205,22 +184,15 @@ export default function Home() {
               </div>
 
               <div className="flex-1 space-y-4 order-1 md:order-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wide">
-                  Built-in
-                </div>
-                <h3 className="text-xl md:text-2xl font-bold text-primary">
+                <h3 className="text-xl md:text-2xl font-bold text-primary flex items-center gap-2">
                   Split expenses without the awkward maths
+                  <span className="relative group">
+                    <Info size={18} className="text-text-muted cursor-pointer hover:text-accent transition-colors" />
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-primary text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10 leading-relaxed">
+                      Log expenses as you go. At the end of the trip we calculate the minimum number of transfers to settle everyone up. Like Splitwise, but built into your trip.
+                    </span>
+                  </span>
                 </h3>
-                <p className="text-text-secondary leading-relaxed">
-                  Forget &ldquo;who owes who for the taxi?&rdquo; log expenses as you go,
-                  and at the end of the trip we calculate the minimum number of transfers to settle everyone up.
-                  Like Splitwise, but built right into your trip.
-                </p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Log on the go</span>
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Equal or custom splits</span>
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Minimum transfers</span>
-                </div>
               </div>
             </div>
           </div>
@@ -290,36 +262,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══════════════════ WHO IT'S FOR ═══════════════════ */}
+        {/* ═══════════════════ WHO IT'S FOR (Carousel) ═══════════════════ */}
         <section className="bg-bg-soft border-y border-border">
-          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-24">
+          <div className="max-w-5xl mx-auto px-5 sm:px-4 py-10 md:py-16">
             <div className="text-center mb-6 md:mb-8">
               <h2 className="text-xl md:text-3xl font-bold text-primary">
                 Whatever the trip, we&apos;ve got you
               </h2>
-              <p className="text-sm md:text-base text-text-secondary mt-2 md:mt-3 max-w-lg mx-auto">
-                The trip changes. The audience changes. But the person pulling their hair out trying to organise it? That&apos;s always the same. That&apos;s who we built this for.
-              </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
-              {[
-                { emoji: '🎉', label: 'Stag dos', desc: 'Herd the lads, book the chaos' },
-                { emoji: '💅', label: 'Hen parties', desc: 'Matching flights, not just robes' },
-                { emoji: '🏖️', label: 'Lads holidays', desc: 'Sun, cheap flights, sorted' },
-                { emoji: '👯‍♀️', label: 'Girls trips', desc: 'Everyone\'s budget, one search' },
-                { emoji: '⛳', label: 'Golf trips', desc: 'Tee times & transfers in one' },
-                { emoji: '🏢', label: 'Work away days', desc: 'No more spreadsheet sign-ups' },
-                { emoji: '👨‍👩‍👧‍👦', label: 'Family holidays', desc: 'Grandma flies from Spain? Easy' },
-                { emoji: '🎂', label: 'Birthday trips', desc: 'Surprise-proof with organiser mode' },
-              ].map((item) => (
-                <div key={item.label} className="bg-white rounded-card border border-border p-3 sm:p-4 hover:border-accent/30 hover:shadow-sm transition-all text-center space-y-1">
-                  <span className="text-2xl sm:text-3xl block">{item.emoji}</span>
-                  <p className="text-xs sm:text-sm font-semibold text-primary">{item.label}</p>
-                  <p className="text-[10px] sm:text-[11px] text-text-secondary leading-snug">{item.desc}</p>
-                </div>
-              ))}
-            </div>
+            <TripTypeCarousel />
           </div>
         </section>
 
@@ -341,9 +293,6 @@ export default function Home() {
                 <ArrowRight size={20} />
               </Link>
             </div>
-            <p className="text-blue-200 text-sm">
-              Free forever. No card needed. No booking fees.
-            </p>
           </div>
         </section>
       </main>

@@ -37,9 +37,6 @@ export default function HowItWorks() {
             <h1 className="text-2xl md:text-4xl font-bold text-primary">
               How it works
             </h1>
-            <p className="text-text-secondary max-w-lg mx-auto text-base md:text-lg">
-              Three steps. No spreadsheets. No awkward &ldquo;can everyone fill this in&rdquo; messages.
-            </p>
           </div>
         </section>
 
@@ -63,7 +60,7 @@ export default function HowItWorks() {
                 <div className="flex flex-wrap gap-2 pt-1">
                   <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Invite by email</span>
                   <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">No sign-up needed</span>
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Passport name check</span>
+                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Unlimited guests</span>
                 </div>
               </div>
               {/* Mockup: Invite form */}
@@ -71,34 +68,34 @@ export default function HowItWorks() {
                 <div className="bg-white rounded-card border border-border shadow-lg overflow-hidden">
                   <div className="bg-gradient-to-r from-accent to-blue-500 px-5 py-4">
                     <p className="text-white/70 text-xs font-medium">TRIP AMIGOS</p>
-                    <p className="text-white font-bold text-lg mt-0.5">Jake&apos;s Stag Do 2026</p>
+                    <p className="text-white font-bold text-lg mt-0.5">Jake&apos;s Stag Do</p>
                   </div>
                   <div className="p-5 space-y-3">
                     <div className="flex items-center gap-3 p-3 bg-bg-soft rounded-input">
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"><Check size={14} className="text-green-600" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-primary">Tom W.</p>
+                        <p className="text-xs font-semibold text-primary">Tom</p>
                         <p className="text-[10px] text-text-muted">Submitted preferences</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-bg-soft rounded-input">
                       <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center"><Check size={14} className="text-green-600" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-primary">Danny M.</p>
+                        <p className="text-xs font-semibold text-primary">Danny</p>
                         <p className="text-[10px] text-text-muted">Submitted preferences</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-bg-soft rounded-input">
                       <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center"><Clock size={14} className="text-yellow-600" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-primary">Chris B.</p>
+                        <p className="text-xs font-semibold text-primary">Chris</p>
                         <p className="text-[10px] text-text-muted">Invite sent &mdash; waiting</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-bg-soft rounded-input">
                       <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center"><Clock size={14} className="text-yellow-600" /></div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-primary">Reece J.</p>
+                        <p className="text-xs font-semibold text-primary">Reece</p>
                         <p className="text-[10px] text-text-muted">Invite sent &mdash; waiting</p>
                       </div>
                     </div>
@@ -120,18 +117,12 @@ export default function HowItWorks() {
                   Step 2
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold text-primary">
-                  See what the group actually wants
+                  See what the group wants
                 </h2>
                 <p className="text-sm md:text-base text-text-secondary leading-relaxed">
                   Once everyone&apos;s replied, your dashboard shows you the overlap &mdash; which destinations got the most votes,
                   the budget range that works for everyone, and the dates people are free.
-                  No more guessing, no more &ldquo;I think most people said...&rdquo;
                 </p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Destination voting</span>
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Budget overlap</span>
-                  <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">Live results</span>
-                </div>
               </div>
               {/* Mockup: Voting dashboard */}
               <div className="flex-1 max-w-sm w-full">
@@ -158,9 +149,15 @@ export default function HowItWorks() {
                       </div>
                     </div>
                   ))}
-                  <div className="pt-2 border-t border-border flex justify-between text-xs text-text-secondary">
-                    <span>Budget sweet spot</span>
-                    <span className="font-semibold text-primary">£400 – £600pp</span>
+                  <div className="pt-2 border-t border-border space-y-1.5">
+                    <div className="flex justify-between text-xs text-text-secondary">
+                      <span>Budget sweet spot</span>
+                      <span className="font-semibold text-primary">£400 – £600pp</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-text-secondary">
+                      <span>Best dates</span>
+                      <span className="font-semibold text-primary">12 – 16 Aug</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -176,7 +173,7 @@ export default function HowItWorks() {
                   Compare options &amp; book for everyone
                 </h2>
                 <p className="text-sm md:text-base text-text-secondary leading-relaxed">
-                  We search flights from everyone&apos;s home airports and find hotels in the group&apos;s budget.
+                  We search flights and find hotels in the group&apos;s budget.
                   Prices, times, ratings &mdash; all side by side. Pick the winners,
                   hit book, and everyone gets their confirmation. You&apos;re officially a hero.
                 </p>
@@ -186,7 +183,7 @@ export default function HowItWorks() {
                   <span className="text-xs bg-bg-soft border border-border rounded-full px-3 py-1 text-text-secondary">One-click booking</span>
                 </div>
               </div>
-              {/* Mockup: Flight options */}
+              {/* Mockup: Flight + Hotel options */}
               <div className="flex-1 max-w-sm w-full">
                 <div className="bg-white rounded-card border border-border shadow-lg overflow-hidden p-5 space-y-3">
                   <p className="text-xs font-bold text-text-muted uppercase tracking-wide">Flights to Barcelona</p>
@@ -207,15 +204,24 @@ export default function HowItWorks() {
                       <p className={`text-sm font-bold ${f.best ? 'text-accent' : 'text-primary'}`}>{f.price}</p>
                     </div>
                   ))}
-                  <div className="pt-2 border-t border-border">
-                    <div className="flex items-center gap-2 p-3 rounded-input border border-border">
-                      <Building2 size={14} className="text-text-muted" />
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-primary">Hotel Arts Barcelona</p>
-                        <p className="text-[10px] text-text-muted">4-star &middot; Las Ramblas &middot; 4 nights</p>
+                  <div className="pt-2 border-t border-border space-y-2">
+                    <p className="text-xs font-bold text-text-muted uppercase tracking-wide">Hotels in Barcelona</p>
+                    {[
+                      { name: 'Hotel Arts Barcelona', stars: '4-star', area: 'Las Ramblas', nights: '4 nights', price: '£112', best: true },
+                      { name: 'Generator Hostel', stars: '3-star', area: 'Gracia', nights: '4 nights', price: '£68', best: false },
+                    ].map((h, i) => (
+                      <div key={i} className={`flex items-center gap-3 p-3 rounded-input border ${h.best ? 'border-green-300 bg-green-50/50' : 'border-border'}`}>
+                        <Building2 size={14} className={h.best ? 'text-green-600' : 'text-text-muted'} />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-semibold text-primary">{h.name}</p>
+                            {h.best && <span className="text-[9px] bg-green-600 text-white px-1.5 py-0.5 rounded font-bold">TOP PICK</span>}
+                          </div>
+                          <p className="text-[10px] text-text-muted">{h.stars} &middot; {h.area} &middot; {h.nights}</p>
+                        </div>
+                        <p className={`text-sm font-bold ${h.best ? 'text-green-600' : 'text-primary'}`}>{h.price}<span className="text-[10px] font-normal text-text-muted">/pp</span></p>
                       </div>
-                      <p className="text-sm font-bold text-primary">£112<span className="text-[10px] font-normal text-text-muted">/pp</span></p>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -239,9 +245,6 @@ export default function HowItWorks() {
               Plan your first trip
               <ArrowRight size={20} />
             </Link>
-            <p className="text-blue-200 text-sm">
-              Free forever. No card needed. No booking fees.
-            </p>
           </div>
         </section>
       </main>
