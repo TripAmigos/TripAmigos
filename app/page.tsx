@@ -44,8 +44,8 @@ export default function Home() {
               </h1>
               <p className="text-base md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
                 TripAmigos brings together your group&apos;s travel, hotel and date preferences.
-                We then help you shortlist trips based on everyone&apos;s needs,
-                allowing you to book and manage everything and everyone, all in one place!
+                We shortlist trips based on everyone&apos;s needs,
+                allowing you to book and manage everything all in one place!
               </p>
             </div>
 
