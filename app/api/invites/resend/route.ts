@@ -63,7 +63,10 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    const organiserName = profile?.full_name || 'Someone'
+    const organiserName = profile?.full_name
+      || user.user_metadata?.full_name
+      || user.email?.split('@')[0]
+      || 'Your trip organiser'
 
     // Send reminder email
     await sendReminderEmail({

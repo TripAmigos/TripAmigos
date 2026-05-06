@@ -103,8 +103,19 @@ export default function CreateTripPage() {
   const [tripType, setTripType] = useState('vacation')
   const [paymentMethod, setPaymentMethod] = useState<'organiser_pays' | 'individual_pays' | ''>('')
   const [roomSharing, setRoomSharing] = useState<'shared' | 'individual' | ''>('')
+  const [customRoomCount, setCustomRoomCount] = useState('')
+  const [bedPreference, setBedPreference] = useState<'no_preference' | 'double' | 'twin' | 'single'>('no_preference')
   // Cost split is always 'even' — exact split was removed for simplicity
   const [tripMode, setTripMode] = useState<TripMode>('collaborative')
+  const [votingOn, setVotingOn] = useState<Record<string, boolean>>({
+    destinations: true,
+    dates: true,
+    budget: true,
+    hotel_style: true,
+  })
+  const toggleVoting = (key: string) => {
+    setVotingOn(prev => ({ ...prev, [key]: !prev[key] }))
+  }
   const [destinationScope, setDestinationScope] = useState<Region>('anywhere')
   const [shortlistInput, setShortlistInput] = useState('')
   const [shortlistedCities, setShortlistedCities] = useState<string[]>([])
@@ -128,10 +139,14 @@ export default function CreateTripPage() {
   const [directFlightsOnly, setDirectFlightsOnly] = useState(false)
   const [flightTimePreferences, setFlightTimePreferences] = useState<string[]>([])
   const toggleFlightTime = (value: string) => {
+    if (value === 'no_preference') {
+      setFlightTimePreferences(prev => prev.includes('no_preference') ? [] : ['no_preference'])
+      return
+    }
     setFlightTimePreferences(prev => {
-      if (prev.includes(value)) return prev.filter(v => v !== value)
-      if (prev.length >= 2) return [prev[1], value]
-      return [...prev, value]
+      const withoutNoPref = prev.filter(v => v !== 'no_preference')
+      if (withoutNoPref.includes(value)) return withoutNoPref.filter(v => v !== value)
+      return [...withoutNoPref, value]
     })
   }
   const [preferredAirport, setPreferredAirport] = useState('')
@@ -253,7 +268,7 @@ export default function CreateTripPage() {
         setError('Please choose a payment method')
         return
       }
-      if (tripMode === 'collaborative' && !destinationsSkipped && shortlistedCities.length < 3) {
+      if (tripMode === 'collaborative' && votingOn.destinations && !destinationsSkipped && shortlistedCities.length < 3) {
         setError('Please shortlist at least 3 destinations or choose "Let attendees decide"')
         return
       }
@@ -569,17 +584,9 @@ export default function CreateTripPage() {
                   </button>
                 </div>
 
-                {paymentMethod && (
-                  <div className={`mt-3 px-4 py-3 rounded-input text-xs leading-relaxed ${
-                    paymentMethod === 'organiser_pays'
-                      ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                      : 'bg-blue-50 text-blue-800 border border-blue-200'
-                  }`}>
-                    {paymentMethod === 'organiser_pays' ? (
-                      <>You'll pay the full amount at checkout. We recommend collecting money from your group via bank transfer or Monzo before booking.</>
-                    ) : (
-                      <>Once options are ready, each attendee gets a secure payment link. The trip is only booked once everyone has paid.</>
-                    )}
+                {paymentMethod === 'individual_pays' && (
+                  <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-blue-50 text-blue-800 border border-blue-200">
+                    Once options are ready, each attendee gets a secure payment link. The trip is only booked once everyone has paid.
                   </div>
                 )}
               </div>
@@ -634,11 +641,60 @@ export default function CreateTripPage() {
                 </div>
 
                 {roomSharing && (
-                  <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-bg-soft text-text-secondary border border-border">
-                    {roomSharing === 'shared' ? (
-                      <>We'll search for {Math.ceil(parseInt(groupSize) / 2)} room{Math.ceil(parseInt(groupSize) / 2) !== 1 ? 's' : ''} for {groupSize} people. The hotel cost will be split evenly across the group.</>
-                    ) : (
-                      <>We'll search for {groupSize} room{parseInt(groupSize) !== 1 ? 's' : ''} — one per person. Each person's share includes their own room.</>
+                  <div className="mt-3 space-y-3">
+                    <div className="px-4 py-3 rounded-input text-xs leading-relaxed bg-bg-soft text-text-secondary border border-border">
+                      {roomSharing === 'shared' ? (
+                        <>We'll search for {customRoomCount || Math.ceil(parseInt(groupSize) / 2)} room{(parseInt(customRoomCount || String(Math.ceil(parseInt(groupSize) / 2)))) !== 1 ? 's' : ''} for {groupSize} people. The hotel cost will be split evenly across the group.</>
+                      ) : (
+                        <>We'll search for {groupSize} room{parseInt(groupSize) !== 1 ? 's' : ''} — one per person. Each person's share includes their own room.</>
+                      )}
+                    </div>
+
+                    {roomSharing === 'shared' && (
+                      <div className="p-4 bg-bg-soft rounded-card border border-border space-y-3">
+                        <div>
+                          <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                            Number of rooms
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              max={parseInt(groupSize)}
+                              value={customRoomCount || Math.ceil(parseInt(groupSize) / 2)}
+                              onChange={(e) => setCustomRoomCount(e.target.value)}
+                              className="w-20 px-3 py-1.5 border border-border rounded-input bg-white text-primary text-sm"
+                            />
+                            <span className="text-xs text-text-muted">for {groupSize} people</span>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-text-secondary mb-1.5">
+                            Bed preference
+                          </label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {[
+                              { value: 'no_preference', label: 'No preference' },
+                              { value: 'double', label: 'Double beds' },
+                              { value: 'twin', label: 'Twin beds' },
+                              { value: 'single', label: 'Single beds' },
+                            ].map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => setBedPreference(opt.value as any)}
+                                className={`p-2 rounded-input border-2 text-center transition-all text-xs ${
+                                  bedPreference === opt.value
+                                    ? 'border-accent bg-accent-light text-accent font-medium'
+                                    : 'border-border hover:border-gray-300 text-primary'
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
@@ -664,7 +720,7 @@ export default function CreateTripPage() {
                     </span>
                     <p className="text-sm font-semibold text-primary mb-1">Group votes</p>
                     <p className="text-xs text-text-secondary leading-relaxed">
-                      Attendees vote on destinations, share their preferences, and you find the best match for everyone.
+                      Attendees vote on destinations, dates, budget and hotel style. You choose which things they vote on.
                     </p>
                     {tripMode === 'collaborative' && (
                       <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
@@ -694,18 +750,53 @@ export default function CreateTripPage() {
                   </button>
                 </div>
 
+                {tripMode === 'collaborative' && (
+                  <div className="mt-3 p-4 bg-bg-soft rounded-card border border-border space-y-2">
+                    <p className="text-xs font-medium text-primary">What should your group vote on?</p>
+                    <p className="text-[11px] text-text-muted mb-2">Toggle off anything you'd rather decide yourself</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: 'destinations', label: 'Destinations' },
+                        { key: 'dates', label: 'Dates' },
+                        { key: 'budget', label: 'Budget' },
+                        { key: 'hotel_style', label: 'Hotel style' },
+                      ].map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          onClick={() => toggleVoting(item.key)}
+                          className={`flex items-center gap-2 p-2.5 rounded-input border-2 text-left transition-all text-xs font-medium ${
+                            votingOn[item.key]
+                              ? 'border-accent bg-accent-light text-accent'
+                              : 'border-border bg-white text-text-muted'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 ${
+                            votingOn[item.key] ? 'bg-accent' : 'border-2 border-gray-300'
+                          }`}>
+                            {votingOn[item.key] && (
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            )}
+                          </div>
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {tripMode === 'organiser_decides' && (
                   <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-amber-50 text-amber-800 border border-amber-200">
-                    Attendees will still be asked for their passport name, nationality and departure airport — but they won't vote on destinations.
+                    Attendees will still be asked for their passport name, nationality and departure airport — but they won't vote on anything.
                   </div>
                 )}
               </div>
 
               {/* Destinations — only for collaborative mode */}
-              {tripMode === 'collaborative' && (
+              {tripMode === 'collaborative' && votingOn.destinations && (
                 <div className="space-y-4">
                   <label className="block text-sm font-medium text-primary">
-                    Shortlist destinations for your group
+                    Shortlist destinations for your group to vote on
                   </label>
 
                   {!destinationsSkipped && (
@@ -908,6 +999,12 @@ export default function CreateTripPage() {
               {/* Section A: Add your crew */}
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold text-primary">Add your crew</h3>
+                <p className="text-xs text-text-secondary">
+                  You said this is a group of {groupSize}. Add the other {Math.max(parseInt(groupSize) - 1, 1)} {parseInt(groupSize) - 1 === 1 ? 'person' : 'people'} below.
+                  {attendees.length > 0 && (
+                    <span className="font-medium text-primary"> ({attendees.length} of {parseInt(groupSize) - 1} added)</span>
+                  )}
+                </p>
 
                 {/* Passport confirmation */}
                 <label className="flex items-start gap-3 cursor-pointer p-3 bg-amber-50 border border-amber-200 rounded-input">
@@ -1076,11 +1173,13 @@ export default function CreateTripPage() {
               </div>
 
               {/* Section B: Your preferences */}
-              <div className="space-y-4 pt-4 border-t border-border">
-                <h3 className="text-sm font-semibold text-primary">Your preferences</h3>
-                <p className="text-sm text-text-secondary">
-                  Tell us your preferences for this trip. Your attendees will be asked the same questions — the more detail you give, the better we can match everyone.
-                </p>
+              <div className="space-y-4 pt-8 mt-4">
+                <div className="border-t-2 border-accent/20 pt-6">
+                  <h3 className="text-lg font-bold text-primary">Your preferences</h3>
+                  <p className="text-sm text-text-secondary mt-1">
+                    Now tell us what you want from this trip. Your attendees will be asked the same questions.
+                  </p>
+                </div>
 
                 {/* Nationality */}
                 <div className="relative">
@@ -1235,14 +1334,15 @@ export default function CreateTripPage() {
 
                     <div>
                       <label className="block text-xs font-medium text-text-secondary mb-2">
-                        Preferred flight times <span className="text-text-muted font-normal">(pick up to 2)</span>
+                        Preferred flight times <span className="text-text-muted font-normal">(select all that work for you)</span>
                       </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                         {[
                           { value: 'early_morning', label: 'Early morning', sub: 'Before 8am' },
                           { value: 'morning', label: 'Morning', sub: '8am – 12pm' },
                           { value: 'afternoon', label: 'Afternoon', sub: '12pm – 6pm' },
                           { value: 'evening', label: 'Evening', sub: 'After 6pm' },
+                          { value: 'no_preference', label: 'Any time', sub: 'No preference' },
                         ].map((option) => (
                           <button
                             key={option.value}
@@ -1414,7 +1514,7 @@ export default function CreateTripPage() {
                       Minimum star rating
                     </label>
                     <div className="flex gap-2">
-                      {['3', '4', '5'].map((stars) => (
+                      {['1', '2', '3', '4', '5'].map((stars) => (
                         <button
                           key={stars}
                           type="button"
@@ -1435,7 +1535,7 @@ export default function CreateTripPage() {
                 {/* Budget */}
                 <div>
                   <label className="block text-sm font-medium text-primary mb-3">
-                    Your budget per person
+                    Your budget
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                     {[
@@ -1544,8 +1644,15 @@ export default function CreateTripPage() {
             </div>
           )}
 
+          {/* Error near button */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-card px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           {/* Buttons */}
-          <div className="flex gap-3 pt-6">
+          <div className="flex gap-3 pt-2">
             {step !== 'basics' && (
               <button
                 type="button"

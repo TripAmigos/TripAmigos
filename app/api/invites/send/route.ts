@@ -52,14 +52,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only the organiser can send invites' }, { status: 403 })
     }
 
-    // Get organiser name
+    // Get organiser name — try profiles table first, then auth metadata
     const { data: profile } = await supabase
       .from('profiles')
       .select('full_name')
       .eq('id', user.id)
       .single()
 
-    const organiserName = profile?.full_name || 'Someone'
+    const organiserName = profile?.full_name
+      || user.user_metadata?.full_name
+      || user.email?.split('@')[0]
+      || 'Your trip organiser'
 
     // Send the email
     await sendInviteEmail({
