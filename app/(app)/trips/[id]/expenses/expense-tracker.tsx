@@ -50,6 +50,33 @@ interface ExpenseTrackerProps {
   userName: string
 }
 
+const CURRENCIES = [
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc' },
+  { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
+  { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
+  { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
+  { code: 'PLN', symbol: 'zł', name: 'Polish Zloty' },
+  { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
+  { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint' },
+  { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
+  { code: 'THB', symbol: '฿', name: 'Thai Baht' },
+  { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+  { code: 'MXN', symbol: 'MX$', name: 'Mexican Peso' },
+  { code: 'MAD', symbol: 'MAD', name: 'Moroccan Dirham' },
+  { code: 'HRK', symbol: 'kn', name: 'Croatian Kuna' },
+  { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev' },
+  { code: 'RON', symbol: 'lei', name: 'Romanian Leu' },
+]
+
+function getCurrencySymbol(code: string): string {
+  return CURRENCIES.find(c => c.code === code)?.symbol || code
+}
+
 const CATEGORIES = [
   { value: 'food', label: 'Food', icon: Utensils, color: 'text-orange-600 bg-orange-50' },
   { value: 'drinks', label: 'Drinks', icon: Wine, color: 'text-purple-600 bg-purple-50' },
@@ -131,6 +158,8 @@ export default function ExpenseTracker({
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('food')
+  const [otherName, setOtherName] = useState('')
+  const [selectedCurrency, setSelectedCurrency] = useState(initialExpenses[0]?.currency || 'GBP')
   const [expenseDate, setExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [paidBy, setPaidBy] = useState(currentMemberId)
   const [splitType, setSplitType] = useState<'equal' | 'custom'>('equal')
@@ -168,13 +197,17 @@ export default function ExpenseTracker({
     expenses.reduce((sum, e) => sum + e.amount, 0),
   [expenses])
 
-  const currency = expenses[0]?.currency || 'GBP'
-  const currencySymbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : '£'
+  // Group expenses by currency for display
+  const tripCurrency = expenses[0]?.currency || 'GBP'
+  const currencySymbol = getCurrencySymbol(tripCurrency)
+  const formCurrencySymbol = getCurrencySymbol(selectedCurrency)
 
   const resetForm = () => {
     setDescription('')
     setAmount('')
     setCategory('food')
+    setOtherName('')
+    setSelectedCurrency(tripCurrency)
     setExpenseDate(format(new Date(), 'yyyy-MM-dd'))
     setPaidBy(currentMemberId)
     setSplitType('equal')
@@ -183,15 +216,50 @@ export default function ExpenseTracker({
     setError('')
   }
 
+  // Custom split total for validation
+  const customSplitTotal = useMemo(() => {
+    if (splitType !== 'custom') return 0
+    return splitAmong.reduce((sum, id) => sum + (parseFloat(customSplits[id] || '0') || 0), 0)
+  }, [splitType, splitAmong, customSplits])
+
+  const customSplitRemaining = useMemo(() => {
+    if (!amount || splitType !== 'custom') return 0
+    return Math.round((parseFloat(amount) - customSplitTotal) * 100) / 100
+  }, [amount, splitType, customSplitTotal])
+
   const handleAddExpense = async () => {
-    if (!description.trim()) { setError('Add a description'); return }
+    // Build the final description — if "other" category, prepend the custom name
+    const finalDescription = category === 'other' && otherName.trim()
+      ? otherName.trim()
+      : description.trim()
+
+    if (!finalDescription && !description.trim()) { setError('Add a description'); return }
+    if (!description.trim() && category !== 'other') { setError('Add a description'); return }
+    if (category === 'other' && !otherName.trim()) { setError('Give this expense a name (e.g. "restaurant bill")'); return }
     if (!amount || parseFloat(amount) <= 0) { setError('Add a valid amount'); return }
     if (splitAmong.length === 0) { setError('Select at least one person to split with'); return }
+
+    // Validate custom splits sum to total
+    if (splitType === 'custom') {
+      const amountVal = parseFloat(amount)
+      if (Math.abs(customSplitTotal - amountVal) > 0.02) {
+        const diff = customSplitRemaining
+        if (diff > 0) {
+          setError(`Custom amounts are ${formCurrencySymbol}${diff.toFixed(2)} short of the total`)
+        } else {
+          setError(`Custom amounts are ${formCurrencySymbol}${Math.abs(diff).toFixed(2)} over the total`)
+        }
+        return
+      }
+    }
 
     setLoading(true)
     setError('')
 
     const amountNum = parseFloat(amount)
+    const expDescription = category === 'other' && otherName.trim()
+      ? `${otherName.trim()}${description.trim() ? ` — ${description.trim()}` : ''}`
+      : description.trim()
 
     try {
       // Insert the expense
@@ -200,9 +268,9 @@ export default function ExpenseTracker({
         .insert({
           trip_id: trip.id,
           paid_by: paidBy,
-          description: description.trim(),
+          description: expDescription,
           amount: amountNum,
-          currency,
+          currency: selectedCurrency,
           category,
           expense_date: expenseDate,
           split_type: splitType,
@@ -360,20 +428,31 @@ export default function ExpenseTracker({
                 />
               </div>
 
-              {/* Amount and date */}
+              {/* Amount, currency, and date */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-primary mb-1.5">Amount</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary font-medium">{currencySymbol}</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.00"
-                      className="w-full pl-8 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                    />
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary font-medium">{formCurrencySymbol}</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full pl-8 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
+                      />
+                    </div>
+                    <select
+                      value={selectedCurrency}
+                      onChange={(e) => setSelectedCurrency(e.target.value)}
+                      className="w-20 px-2 py-2 border border-border rounded-input bg-white text-primary text-sm font-medium appearance-none cursor-pointer"
+                    >
+                      {CURRENCIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.code}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -407,6 +486,17 @@ export default function ExpenseTracker({
                     </button>
                   ))}
                 </div>
+                {category === 'other' && (
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      value={otherName}
+                      onChange={(e) => setOtherName(e.target.value)}
+                      placeholder="Name this expense, e.g. restaurant bill, bar tab"
+                      className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Who paid */}
@@ -485,11 +575,11 @@ export default function ExpenseTracker({
                       </label>
                       {splitType === 'equal' && splitAmong.includes(member.id) && amount ? (
                         <span className="text-xs text-text-muted">
-                          {currencySymbol}{(parseFloat(amount) / splitAmong.length).toFixed(2)}
+                          {formCurrencySymbol}{(parseFloat(amount) / splitAmong.length).toFixed(2)}
                         </span>
                       ) : splitType === 'custom' && splitAmong.includes(member.id) ? (
                         <div className="relative w-24">
-                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted text-xs">{currencySymbol}</span>
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-muted text-xs">{formCurrencySymbol}</span>
                           <input
                             type="number"
                             step="0.01"
@@ -503,6 +593,25 @@ export default function ExpenseTracker({
                     </div>
                   ))}
                 </div>
+
+                {/* Custom split remaining indicator */}
+                {splitType === 'custom' && amount && parseFloat(amount) > 0 && (
+                  <div className={`mt-3 px-3 py-2 rounded-input text-xs font-medium ${
+                    Math.abs(customSplitRemaining) <= 0.02
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : customSplitRemaining > 0
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'
+                  }`}>
+                    {Math.abs(customSplitRemaining) <= 0.02 ? (
+                      <span className="flex items-center gap-1"><Check size={12} /> Splits add up correctly</span>
+                    ) : customSplitRemaining > 0 ? (
+                      <span>{formCurrencySymbol}{customSplitRemaining.toFixed(2)} remaining to assign</span>
+                    ) : (
+                      <span>{formCurrencySymbol}{Math.abs(customSplitRemaining).toFixed(2)} over the total</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -566,7 +675,7 @@ export default function ExpenseTracker({
                   </div>
                   <div className="text-right flex items-center gap-2">
                     <p className="text-sm font-bold text-primary">
-                      {currencySymbol}{expense.amount.toFixed(2)}
+                      {getCurrencySymbol(expense.currency)}{expense.amount.toFixed(2)}
                     </p>
                     {(isMyExpense || trip.organiser_id === userId) && (
                       <button
