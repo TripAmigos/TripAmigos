@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripAmigos - Group Trip Booking Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Color Palette */
+        :root {
+            --primary-navy: #1B2838;
+            --accent-orange: #E8762B;
+            --secondary-teal: #2A9D8F;
+            --secondary-rose: #E07A5F;
+            --bg-cream: #F4F1DE;
+            --text-charcoal: #264653;
+            --white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-charcoal);
+            background-color: var(--bg-cream);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Texture overlay - subtle paper grain */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.02) 2px,
+                    rgba(255, 255, 255, 0.02) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* NAVBAR */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background-color: var(--white);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Righteous', cursive;
+            font-size: 1.8rem;
+            color: var(--primary-navy);
+            font-weight: 900;
+        }
+
+        .logo-plane {
+            font-size: 1.4rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo-sombrero {
+            position: relative;
+            display: inline-block;
+            margin-left: -0.3rem;
+            font-size: 1.2rem;
+            transform: rotate(-15deg);
+            animation: tilt 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes tilt {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(-12deg); }
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-charcoal);
+            font-weight: 600;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: var(--accent-orange);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-login {
+            background-color: transparent;
+            color: var(--text-charcoal);
+            border: 2px solid var(--text-charcoal);
+        }
+
+        .btn-login:hover {
+            background-color: var(--text-charcoal);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-orange), #E5652F);
+            color: var(--white);
+            box-shadow: 0 6px 12px rgba(232, 118, 43, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(232, 118, 43, 0.4);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            padding: 4rem 2rem;
+            min-height: 650px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: var(--primary-navy);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg,
+                #2C4A70 0%,
+                #1B2838 50%);
+            z-index: 1;
+        }
+
+        /* Mountain/Hill SVG layers */
+        .hero-mountain {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        /* Sunburst rays */
+        .hero-rays {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: repeating-conic-gradient(
+                from 0deg,
+                transparent 0deg 4deg,
+                rgba(232, 118, 43, 0.1) 4deg 8deg
+            );
+            border-radius: 50%;
+            top: -100px;
+            right: -150px;
+            z-index: 2;
+        }
+
+        /* Plane animation */
+        .hero-plane {
+            position: absolute;
+            top: 80px;
+            right: 5%;
+            width: 80px;
+            height: 40px;
+            z-index: 3;
+            animation: fly 15s infinite ease-in-out;
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translateX(100vw) translateY(0px) scaleX(1);
+            }
+            50% {
+                transform: translateX(0px) translateY(-30px) scaleX(1);
+            }
+            100% {
+                transform: translateX(-100vw) translateY(0px) scaleX(-1);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 4;
+            text-align: center;
+            max-width: 800px;
+            color: var(--white);
+        }
+
+        .hero h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            font-weight: 900;
+        }
+
+        .hero h1 .accent {
+            color: var(--accent-orange);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-teal);
+            color: var(--white);
+            box-shadow: 0 6px 12px rgba(42, 157, 143, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(42, 157, 143, 0.4);
+        }
+
+        /* Stamp badge */
+        .stamp-badge {
+            position: absolute;
+            top: 60px;
+            left: 5%;
+            width: 120px;
+            height: 120px;
+            background: var(--accent-orange);
+            border: 3px dashed var(--primary-navy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Righteous', cursive;
+            font-size: 0.9rem;
+            color: var(--white);
+            font-weight: 700;
+            z-index: 5;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: rotate(-15deg);
+        }
+
+        .stamp-badge-text {
+            line-height: 1.3;
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 5rem 2rem;
+            background-color: var(--bg-cream);
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-navy);
+        }
+
+        .section-title .accent {
+            color: var(--accent-orange);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 3rem;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            transform: rotate(-1deg);
+        }
+
+        .step-card:nth-child(2) {
+            transform: rotate(1deg);
+        }
+
+        .step-card:nth-child(3) {
+            transform: rotate(-1.5deg);
+        }
+
+        .step-card:hover {
+            transform: rotate(0deg) translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--accent-orange);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent-orange);
+            border: 3px dashed var(--primary-navy);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Righteous', cursive;
+            font-size: 1.8rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+
+        .step-card h3 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            color: var(--primary-navy);
+        }
+
+        .step-card p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        /* TRIP TYPES */
+        .trip-types {
+            padding: 5rem 2rem;
+            background-color: var(--white);
+        }
+
+        .trip-types-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .scroll-container {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 2rem 0;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 10px;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: var(--accent-orange);
+            border-radius: 10px;
+        }
+
+        .trip-card {
+            flex: 0 0 240px;
+            height: 300px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-family: 'Righteous', cursive;
+            font-size: 1.8rem;
+            color: var(--white);
+            text-align: center;
+            border: 5px solid var(--primary-navy);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            scroll-snap-align: start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trip-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: inherit;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .trip-card:nth-child(1) {
+            background: linear-gradient(135deg, var(--secondary-teal), #1f7f7b);
+        }
+
+        .trip-card:nth-child(2) {
+            background: linear-gradient(135deg, var(--accent-orange), #d9651f);
+        }
+
+        .trip-card:nth-child(3) {
+            background: linear-gradient(135deg, var(--secondary-rose), #c8613f);
+        }
+
+        .trip-card:nth-child(4) {
+            background: linear-gradient(135deg, #8B5CF6, #6D28D9);
+        }
+
+        .trip-card:nth-child(5) {
+            background: linear-gradient(135deg, #EC4899, #BE185D);
+        }
+
+        .trip-card:hover {
+            transform: translateY(-12px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .trip-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 5rem 2rem;
+            background-color: var(--bg-cream);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 3px dotted var(--accent-orange);
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) rotate(1deg);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary-navy);
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* TRUST STRIP */
+        .trust-strip {
+            padding: 3rem 2rem;
+            background: linear-gradient(90deg, var(--secondary-teal), var(--secondary-rose));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trust-strip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-conic-gradient(
+                from 0deg,
+                transparent 0deg 2deg,
+                rgba(255, 255, 255, 0.1) 2deg 4deg
+            );
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .trust-badge {
+            position: relative;
+            z-index: 2;
+            width: 140px;
+            height: 140px;
+            background: var(--white);
+            border: 3px dashed #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Righteous', cursive;
+            font-size: 0.8rem;
+            color: var(--primary-navy);
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            line-height: 1.2;
+        }
+
+        /* CTA SECTION */
+        .cta-section {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary-navy), #0f1820);
+            text-align: center;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-rays {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: repeating-conic-gradient(
+                from 0deg,
+                transparent 0deg 6deg,
+                rgba(232, 118, 43, 0.08) 6deg 12deg
+            );
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .cta-section h2 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: var(--white);
+            padding: 3rem 2rem;
+            border-top: 3px dashed var(--accent-orange);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.2rem;
+            color: var(--primary-navy);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.7rem;
+        }
+
+        .footer-section ul li a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--accent-orange);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 2px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* SCROLL ANIMATIONS */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 0.6rem 1.2rem;
+            }
+
+            .hero {
+                min-height: 500px;
+                padding: 2rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .stamp-badge {
+                width: 100px;
+                height: 100px;
+                font-size: 0.75rem;
+                top: 20px;
+                left: 20px;
+            }
+
+            .hero-plane {
+                width: 60px;
+                height: 30px;
+                top: 50px;
+                right: 10%;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .step-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .trip-card {
+                flex: 0 0 200px;
+                height: 250px;
+                font-size: 1.4rem;
+            }
+
+            .trust-badge {
+                width: 110px;
+                height: 110px;
+                font-size: 0.7rem;
+            }
+
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            .hero-rays,
+            .cta-rays {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .steps-container,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scroll-container {
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+
+            .trip-card {
+                flex: 0 0 160px;
+                height: 200px;
+                font-size: 1.1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .trust-strip {
+                gap: 1rem;
+            }
+
+            .trust-badge {
+                width: 90px;
+                height: 90px;
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo">
+            <span class="logo-plane">✈️</span>
+            <span>Trip<span class="logo-sombrero">🎩</span>Amigos</span>
+        </div>
+        <ul>
+            <li><a href="#how-it-works">How it works</a></li>
+            <li><a href="#features">Features</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <button class="btn btn-login">Log in</button>
+            <button class="btn btn-primary">Start planning</button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-rays"></div>
+
+        <!-- Mountain silhouettes -->
+        <svg class="hero-mountain" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice">
+            <path d="M 0 150 Q 150 80 300 120 Q 450 150 600 100 Q 750 50 900 130 Q 1000 170 1200 150 L 1200 300 L 0 300 Z" fill="#0d1820" opacity="0.8"/>
+            <path d="M 0 200 Q 200 120 400 160 Q 600 200 800 140 Q 1000 80 1200 190 L 1200 300 L 0 300 Z" fill="#1B2838" opacity="0.9"/>
+        </svg>
+
+        <!-- Plane -->
+        <svg class="hero-plane" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#E8762B">
+                <rect x="30" y="18" width="40" height="8" rx="4"/>
+                <polygon points="25,18 35,12 35,24"/>
+                <circle cx="45" cy="25" r="5"/>
+                <circle cx="60" cy="25" r="5"/>
+                <polygon points="70,18 80,22 70,26"/>
+            </g>
+        </svg>
+
+        <!-- Stamp badge -->
+        <div class="stamp-badge">
+            <div class="stamp-badge-text">Plan together.<br>Book together.</div>
+        </div>
+
+        <!-- Content -->
+        <div class="hero-content">
+            <h1>Group trip booking <span class="accent">platform.</span></h1>
+            <p>TripAmigos brings together your group's travel, hotel and date preferences. We shortlist trips based on everyone's needs, allowing you to book and manage everything all in one place!</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary">Start your trip</button>
+                <button class="btn btn-secondary">Learn more</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">How it <span class="accent">works</span></h2>
+        <p class="section-subtitle">Three simple steps to your next adventure</p>
+
+        <div class="steps-container">
+            <div class="step-card fade-in">
+                <div class="step-number">1</div>
+                <h3>Rally your crew</h3>
+                <p>Create a trip and invite your friends via email. Set the stage for an amazing adventure together.</p>
+            </div>
+            <div class="step-card fade-in">
+                <div class="step-number">2</div>
+                <h3>Let everyone weigh in</h3>
+                <p>Everyone submits their preferences for budget, dates, and destinations. We handle the preferences voting.</p>
+            </div>
+            <div class="step-card fade-in">
+                <div class="step-number">3</div>
+                <h3>Lock it in</h3>
+                <p>Compare shortlisted options and book flights and hotels all in one place. Adventure awaits!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRIP TYPES -->
+    <section class="trip-types" id="trip-types">
+        <div class="trip-types-container">
+            <h2 class="section-title">Where to <span class="accent">next?</span></h2>
+            <p class="section-subtitle">Explore destinations your group will love</p>
+
+            <div class="scroll-container">
+                <div class="trip-card fade-in">
+                    <div class="trip-emoji">🏖️</div>
+                    <div>Beach Vibes</div>
+                </div>
+                <div class="trip-card fade-in">
+                    <div class="trip-emoji">🏔️</div>
+                    <div>Mountain Trek</div>
+                </div>
+                <div class="trip-card fade-in">
+                    <div class="trip-emoji">🏛️</div>
+                    <div>City Escape</div>
+                </div>
+                <div class="trip-card fade-in">
+                    <div class="trip-emoji">🌴</div>
+                    <div>Tropical Getaway</div>
+                </div>
+                <div class="trip-card fade-in">
+                    <div class="trip-emoji">🎿</div>
+                    <div>Winter Sports</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <h2 class="section-title">Why choose <span class="accent">TripAmigos?</span></h2>
+        <p class="section-subtitle">Built for groups, by travelers</p>
+
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon">👥</div>
+                <h3>Group Management</h3>
+                <p>Invite everyone, manage preferences, and keep everyone in sync throughout the planning process.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🗳️</div>
+                <h3>Smart Voting</h3>
+                <p>Let your crew vote on options. Our algorithm finds the best match for everyone's needs.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">💰</div>
+                <h3>Budget Friendly</h3>
+                <p>No hidden fees, no booking charges. See real-time prices and book with confidence.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure Booking</h3>
+                <p>Book flights and hotels directly through trusted partners with secure payment processing.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile Ready</h3>
+                <p>Plan on the go with our mobile-friendly platform. Check in anytime, anywhere.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-Time Updates</h3>
+                <p>Stay updated with instant notifications about new options, votes, and booking changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST STRIP -->
+    <section class="trust-strip">
+        <div class="trust-badge">
+            <span>No booking fees</span>
+        </div>
+        <div class="trust-badge">
+            <span>Real-time prices</span>
+        </div>
+        <div class="trust-badge">
+            <span>Free forever</span>
+        </div>
+        <div class="trust-badge">
+            <span>Trusted by groups</span>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+        <div class="cta-rays"></div>
+        <div class="cta-content fade-in">
+            <h2>Ready for your next adventure, <span class="accent">amigo?</span></h2>
+            <p>Gather your crew and start planning your dream group trip today. No credit card required.</p>
+            <button class="btn btn-primary">Start planning now</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>TripAmigos</h4>
+                <p style="color: #666; font-size: 0.9rem;">Making group travel planning simple, fun, and stress-free since 2025.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How it works</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About us</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Cookies</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TripAmigos. All rights reserved. Safe travels, amigos! ✈️</p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Button click interactions
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Visual feedback
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

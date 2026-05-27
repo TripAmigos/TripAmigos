@@ -1300,10 +1300,9 @@ export default function CreateTripPage() {
                   <label className="block text-sm font-medium text-primary mb-3">
                     How do you want to get there?
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     {[
                       { value: 'flight', label: 'Fly' },
-                      { value: 'train', label: 'Train' },
                       { value: 'drive', label: 'Drive' },
                       { value: 'no_preference', label: 'Any' },
                     ].map((option) => (

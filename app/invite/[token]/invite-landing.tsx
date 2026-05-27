@@ -616,10 +616,9 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
             {/* Transport */}
             <div className="bg-white border border-border rounded-card p-5 space-y-3">
               <label className="block text-sm font-medium text-primary">How do you want to get there?</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   { value: 'flight', label: 'Fly' },
-                  { value: 'train', label: 'Train' },
                   { value: 'drive', label: 'Drive' },
                   { value: 'no_preference', label: 'Any' },
                 ].map((option) => (

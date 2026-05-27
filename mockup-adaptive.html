@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripAmigos - Group Trip Booking Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3B82F6;
+            --secondary: #1E40AF;
+            --accent: #60A5FA;
+            --text: #1F2937;
+            --light-bg: #FFFFFF;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --border-color: #E5E7EB;
+            --pattern-color: rgba(59, 130, 246, 0.05);
+            --button-text: #FFFFFF;
+            --footer-gradient: linear-gradient(135deg, #3B82F6, #1E40AF);
+            --hero-accent: #3B82F6;
+            --card-effect: none;
+            --transition-duration: 0.4s;
+        }
+
+        /* SKI TRIP THEME */
+        body.theme-ski {
+            --primary: #0EA5E9;
+            --secondary: #1E3A5F;
+            --accent: #38BDF8;
+            --text: #0C2F4A;
+            --light-bg: #F8FAFC;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --border-color: #CBD5E1;
+            --pattern-color: rgba(14, 165, 233, 0.08);
+            --button-text: #FFFFFF;
+            --footer-gradient: linear-gradient(135deg, #0EA5E9, #1E3A5F);
+            --hero-accent: #38BDF8;
+            --card-effect: 8px 8px 16px rgba(30, 58, 95, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        /* BEACH HOLIDAY THEME */
+        body.theme-beach {
+            --primary: #0891B2;
+            --secondary: #F59E0B;
+            --accent: #F97316;
+            --text: #78350F;
+            --light-bg: #FFFBEB;
+            --card-bg: rgba(255, 253, 231, 0.9);
+            --border-color: #FED7AA;
+            --pattern-color: rgba(245, 158, 11, 0.08);
+            --button-text: #FFFFFF;
+            --footer-gradient: linear-gradient(135deg, #0891B2, #F59E0B);
+            --hero-accent: #F97316;
+            --card-effect: 0 4px 12px rgba(245, 158, 11, 0.15), 2px 2px 0 #FED7AA;
+        }
+
+        /* CITY BREAK THEME */
+        body.theme-city {
+            --primary: #D97706;
+            --secondary: #1F2937;
+            --accent: #F59E0B;
+            --text: #F3F4F6;
+            --light-bg: #111827;
+            --card-bg: rgba(31, 41, 55, 0.8);
+            --border-color: #374151;
+            --pattern-color: rgba(217, 119, 6, 0.06);
+            --button-text: #111827;
+            --footer-gradient: linear-gradient(135deg, #1F2937, #111827);
+            --hero-accent: #F59E0B;
+            --card-effect: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* STAG DO THEME */
+        body.theme-stagdo {
+            --primary: #22C55E;
+            --secondary: #111827;
+            --accent: #84CC16;
+            --text: #F3F4F6;
+            --light-bg: #1F2937;
+            --card-bg: rgba(34, 197, 94, 0.12);
+            --border-color: #22C55E;
+            --pattern-color: rgba(34, 197, 94, 0.1);
+            --button-text: #111827;
+            --footer-gradient: linear-gradient(135deg, #22C55E, #111827);
+            --hero-accent: #84CC16;
+            --card-effect: 3px 3px 0 #22C55E, 6px 6px 0 rgba(34, 197, 94, 0.3);
+        }
+
+        /* FESTIVAL THEME */
+        body.theme-festival {
+            --primary: #7C3AED;
+            --secondary: #EC4899;
+            --accent: #3B82F6;
+            --text: #F3F4F6;
+            --light-bg: #581C87;
+            --card-bg: rgba(124, 58, 237, 0.2);
+            --border-color: #EC4899;
+            --pattern-color: rgba(124, 58, 237, 0.1);
+            --button-text: #FFFFFF;
+            --footer-gradient: linear-gradient(135deg, #7C3AED, #EC4899);
+            --hero-accent: #EC4899;
+            --card-effect: 0 0 20px rgba(236, 72, 153, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        html, body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background-color: var(--light-bg);
+            transition: background-color var(--transition-duration) ease, color var(--transition-duration) ease;
+        }
+
+        /* Background patterns */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body.theme-default::before {
+            background: linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%);
+        }
+
+        body.theme-ski::before {
+            background: linear-gradient(135deg, #F8FAFC 0%, #E0F2FE 100%);
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, rgba(14, 165, 233, 0.3), transparent),
+                radial-gradient(2px 2px at 60px 70px, rgba(14, 165, 233, 0.2), transparent),
+                radial-gradient(1px 1px at 50px 50px, rgba(30, 58, 95, 0.2), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(14, 165, 233, 0.2), transparent),
+                linear-gradient(135deg, #F8FAFC 0%, #E0F2FE 100%);
+            background-size: 200px 200px, 150px 150px, 250px 250px, 300px 300px, 100% 100%;
+            background-attachment: fixed;
+        }
+
+        body.theme-beach::before {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            background-image:
+                radial-gradient(3px 3px at 20px 30px, rgba(245, 158, 11, 0.3), transparent),
+                radial-gradient(2px 2px at 60px 70px, rgba(249, 115, 22, 0.2), transparent),
+                linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            background-size: 200px 200px, 150px 150px, 100% 100%;
+            background-attachment: fixed;
+        }
+
+        body.theme-city::before {
+            background: linear-gradient(135deg, #111827 0%, #1F2937 100%);
+            background-image:
+                linear-gradient(45deg, transparent 48%, rgba(217, 119, 6, 0.05) 49%, rgba(217, 119, 6, 0.05) 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(217, 119, 6, 0.05) 49%, rgba(217, 119, 6, 0.05) 51%, transparent 52%),
+                linear-gradient(135deg, #111827 0%, #1F2937 100%);
+            background-size: 100px 100px, 100px 100px, 100% 100%;
+            background-attachment: fixed;
+        }
+
+        body.theme-stagdo::before {
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            background-image:
+                radial-gradient(2px 2px at 30px 40px, #22C55E, transparent),
+                radial-gradient(1.5px 1.5px at 80px 20px, #84CC16, transparent),
+                radial-gradient(2px 2px at 50px 80px, #22C55E, transparent),
+                linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            background-size: 200px 200px, 150px 150px, 250px 250px, 100% 100%;
+            background-attachment: fixed;
+        }
+
+        body.theme-festival::before {
+            background: linear-gradient(135deg, #581C87 0%, #6D28D9 100%);
+            background-image:
+                radial-gradient(3px 3px at 20px 30px, #EC4899, transparent),
+                radial-gradient(2px 2px at 80px 60px, #7C3AED, transparent),
+                radial-gradient(2px 2px at 40px 80px, #3B82F6, transparent),
+                linear-gradient(135deg, #581C87 0%, #6D28D9 100%);
+            background-size: 200px 200px, 150px 150px, 180px 180px, 100% 100%;
+            background-attachment: fixed;
+        }
+
+        /* Content wrapper */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Nav */
+        nav {
+            background-color: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-duration) ease;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color var(--transition-duration) ease;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color var(--transition-duration) ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background-color: var(--primary);
+            color: var(--button-text);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            transition: color var(--transition-duration) ease;
+        }
+
+        .hero-accent {
+            color: var(--hero-accent);
+            transition: color var(--transition-duration) ease;
+        }
+
+        .hero-subheading {
+            font-size: 1.2rem;
+            color: var(--text);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-button {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-button.primary {
+            background-color: var(--primary);
+            color: var(--button-text);
+        }
+
+        .hero-button.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-button.secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .hero-button.secondary:hover {
+            background-color: var(--primary);
+            color: var(--button-text);
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 3rem 2rem;
+            flex-wrap: wrap;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all var(--transition-duration) ease;
+        }
+
+        .theme-selector-label {
+            width: 100%;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .theme-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .theme-btn {
+            padding: 1rem;
+            border: 3px solid var(--border-color);
+            background-color: transparent;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            min-width: 110px;
+            color: var(--text);
+        }
+
+        .theme-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .theme-btn.active {
+            background-color: var(--primary);
+            color: var(--button-text);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: shimmer-pulse 0.6s ease-out;
+        }
+
+        .theme-btn-emoji {
+            font-size: 1.8rem;
+        }
+
+        .theme-btn-label {
+            font-size: 0.85rem;
+        }
+
+        @keyframes shimmer-pulse {
+            0% {
+                box-shadow: 0 0 0 0 currentColor, 0 8px 24px rgba(0, 0, 0, 0.15);
+            }
+            50% {
+                box-shadow: 0 0 0 10px transparent, 0 8px 24px rgba(0, 0, 0, 0.15);
+            }
+            100% {
+                box-shadow: 0 0 0 0 transparent, 0 8px 24px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        /* How it works */
+        .how-it-works {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all var(--transition-duration) ease;
+            box-shadow: var(--card-effect);
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .step-number {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .step-card p {
+            color: var(--text);
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            background-color: var(--card-bg);
+            margin-top: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .feature-card {
+            background-color: var(--light-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 2px solid var(--border-color);
+            transition: all var(--transition-duration) ease;
+            box-shadow: var(--card-effect);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text);
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* CTA Footer */
+        .cta-footer {
+            background: var(--footer-gradient);
+            color: var(--button-text);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            transition: background var(--transition-duration) ease;
+        }
+
+        .cta-footer h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-footer p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-footer-btn {
+            padding: 1rem 2.5rem;
+            background-color: var(--light-bg);
+            color: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-duration) ease;
+            text-transform: uppercase;
+        }
+
+        .cta-footer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--light-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text);
+            opacity: 0.7;
+            transition: all var(--transition-duration) ease;
+        }
+
+        /* Fade in animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* SVG Decorative Elements */
+        .mountain-silhouette {
+            width: 100%;
+            height: 150px;
+            margin-top: 2rem;
+            opacity: 0.1;
+        }
+
+        .wave-pattern {
+            width: 100%;
+            height: 80px;
+            margin-top: 2rem;
+            opacity: 0.15;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .theme-selector {
+                padding: 1.5rem;
+            }
+
+            .theme-buttons {
+                gap: 0.5rem;
+            }
+
+            .theme-btn {
+                min-width: 90px;
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="theme-default">
+    <div class="content-wrapper">
+        <!-- Nav -->
+        <nav>
+            <div class="nav-logo">
+                ✈️ TripAmigos
+            </div>
+            <ul class="nav-links">
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="nav-cta">Start Planning</button>
+        </nav>
+
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Group Trip Booking, <span class="hero-accent">Simplified</span></h1>
+            <p class="hero-subheading">
+                TripAmigos brings together your group's travel, hotel and date preferences. We shortlist trips based on everyone's needs, allowing you to book and manage everything all in one place!
+            </p>
+            <div class="hero-buttons">
+                <button class="hero-button primary">Start Planning Now</button>
+                <button class="hero-button secondary">Learn More</button>
+            </div>
+        </div>
+
+        <!-- Theme Selector -->
+        <div class="theme-selector">
+            <div class="theme-selector-label">What kind of trip?</div>
+            <div class="theme-buttons">
+                <button class="theme-btn active" data-theme="default">
+                    <span class="theme-btn-emoji">🧭</span>
+                    <span class="theme-btn-label">Default</span>
+                </button>
+                <button class="theme-btn" data-theme="ski">
+                    <span class="theme-btn-emoji">🎿</span>
+                    <span class="theme-btn-label">Ski Trip</span>
+                </button>
+                <button class="theme-btn" data-theme="beach">
+                    <span class="theme-btn-emoji">🏖️</span>
+                    <span class="theme-btn-label">Beach</span>
+                </button>
+                <button class="theme-btn" data-theme="city">
+                    <span class="theme-btn-emoji">🏙️</span>
+                    <span class="theme-btn-label">City Break</span>
+                </button>
+                <button class="theme-btn" data-theme="stagdo">
+                    <span class="theme-btn-emoji">🎉</span>
+                    <span class="theme-btn-label">Stag Do</span>
+                </button>
+                <button class="theme-btn" data-theme="festival">
+                    <span class="theme-btn-emoji">🎪</span>
+                    <span class="theme-btn-label">Festival</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <section class="how-it-works" id="how">
+            <h2 class="section-title fade-in">How It Works</h2>
+            <div class="steps">
+                <div class="step-card fade-in">
+                    <div class="step-number" data-icon-default="1" data-icon-ski="🎿" data-icon-beach="🏖️" data-icon-city="🏙️" data-icon-stagdo="🎉" data-icon-festival="🎪">1</div>
+                    <h3>Create & Invite</h3>
+                    <p>Start a trip and invite your friends via email. Everyone joins in seconds to share their preferences.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number" data-icon-default="2" data-icon-ski="⛷️" data-icon-beach="🌊" data-icon-city="✈️" data-icon-stagdo="🍻" data-icon-festival="🎵">2</div>
+                    <h3>Share Preferences</h3>
+                    <p>Your friends submit their budget, dates, and destination preferences. Our algorithm collects all preferences.</p>
+                </div>
+                <div class="step-card fade-in">
+                    <div class="step-number" data-icon-default="3" data-icon-ski="🏔️" data-icon-beach="☀️" data-icon-city="🍸" data-icon-stagdo="🎯" data-icon-festival="🎶">3</div>
+                    <h3>Vote & Book</h3>
+                    <p>We shortlist the best options. The group votes on flights and hotels, then book everything together.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features" id="features">
+            <h2 class="section-title fade-in">Why Choose TripAmigos?</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Group Consensus</h3>
+                    <p>Everyone's voice matters. Our voting system ensures fairness and transparency in every decision.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">💰</div>
+                    <h3>Budget-Friendly</h3>
+                    <p>Compare multiple options and find the best value for your group. Split costs easily with integrated payment.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📅</div>
+                    <h3>Schedule Sync</h3>
+                    <p>Find dates that work for everyone. Our smart calendar shows overlaps and conflicts instantly.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Global Coverage</h3>
+                    <p>Search 2M+ flights, 1M+ hotels worldwide. All in one place with real-time pricing and availability.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>Fast & Easy</h3>
+                    <p>Set up your trip in under 5 minutes. From invite to booking—all streamlined for speed.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure Booking</h3>
+                    <p>Industry-standard encryption. Your payment info and personal data are fully protected.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Footer -->
+        <section class="cta-footer" id="contact">
+            <h2>Ready to Plan Your Next Adventure?</h2>
+            <p>Join thousands of groups discovering the best travel experiences together.</p>
+            <button class="cta-footer-btn">Start Planning Today</button>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 TripAmigos. All rights reserved. | Privacy Policy | Terms of Service</p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme switching
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const body = document.body;
+
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+
+                // Remove old theme class and active state
+                themeButtons.forEach(b => b.classList.remove('active'));
+                body.className = `theme-${theme}`;
+
+                // Set new active state
+                btn.classList.add('active');
+
+                // Update step icons
+                updateStepIcons(theme);
+            });
+        });
+
+        // Update step icons based on theme
+        function updateStepIcons(theme) {
+            const stepNumbers = document.querySelectorAll('.step-number');
+            stepNumbers.forEach(el => {
+                const iconKey = `data-icon-${theme}`;
+                if (el.hasAttribute(iconKey)) {
+                    el.textContent = el.getAttribute(iconKey);
+                }
+            });
+        }
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

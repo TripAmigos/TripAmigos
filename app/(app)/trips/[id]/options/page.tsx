@@ -34,11 +34,8 @@ export default async function TripOptionsPage({
     .eq('trip_id', params.id)
     .eq('is_submitted', true)
 
-  // Determine overall transport mode: if majority voted train, search trains
-  const transportVotes = (allPreferences || []).map(p => p.transport_preference).filter(Boolean)
-  const trainVotes = transportVotes.filter(v => v === 'train').length
-  const flightVotes = transportVotes.filter(v => v === 'flight').length
-  const transportMode = trainVotes > flightVotes ? 'train' : trainVotes === flightVotes && trainVotes > 0 ? 'both' : 'flight'
+  // Transport mode — trains hidden for now (launching with flights only)
+  const transportMode = 'flight' as const
 
   const { data: preferences } = await supabase
     .from('member_preferences')
