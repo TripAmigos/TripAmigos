@@ -1342,31 +1342,43 @@ export default function TripOptions({ trip, preferences, members, userId, transp
             onClick={async () => {
               setBooking(true)
               try {
-                // Build booking data to persist
+                // Build booking data
                 const flightBookings = routes
-                  .filter(r => r.mode !== 'drive')
+                  .filter(r => r.mode === 'flight')
                   .map(route => {
-                    const opt = route.mode === 'train'
-                      ? route.trainOptions.find(o => o.id === route.selectedOptionId)
-                      : route.flightOptions.find(o => o.offerId === route.selectedOptionId)
+                    const opt = route.flightOptions.find(o => o.offerId === route.selectedOptionId)
                     return {
                       routeId: route.id,
                       origin: route.origin,
                       destination: destCity,
                       mode: route.mode,
-                      airline: route.mode === 'flight'
-                        ? (opt as FlightOption)?.airline.name
-                        : (opt as TrainOption)?.outbound.operator,
-                      bookingReference: '', // populated after real Duffel call
+                      airline: (opt as FlightOption)?.airline.name,
+                      bookingReference: '',
                       passengers: route.members.map(m => m.name),
-                      slices: route.mode === 'flight' ? (opt as FlightOption)?.slices : null,
-                      outbound: route.mode === 'train' ? (opt as TrainOption)?.outbound : null,
-                      returnJourney: route.mode === 'train' ? (opt as TrainOption)?.returnJourney : null,
-                      pricingTotal: route.mode === 'train' ? (opt as TrainOption)?.totalPrice : (opt as FlightOption)?.pricing.total,
-                      pricingPerPerson: route.mode === 'train' ? (opt as TrainOption)?.pricePerPerson : (opt as FlightOption)?.pricing.perPerson,
-                      currency: route.mode === 'train' ? (opt as TrainOption)?.currency : (opt as FlightOption)?.pricing.currency,
+                      slices: (opt as FlightOption)?.slices,
+                      pricingTotal: (opt as FlightOption)?.pricing.total,
+                      pricingPerPerson: (opt as FlightOption)?.pricing.perPerson,
+                      currency: (opt as FlightOption)?.pricing.currency,
                     }
                   })
+
+                // Collect Duffel offer IDs for all flight routes
+                const offerIds = routes
+                  .filter(r => r.mode === 'flight' && r.selectedOptionId)
+                  .map(r => r.selectedOptionId)
+
+                // Build passenger list from route members
+                const firstFlightRoute = routes.find(r => r.mode === 'flight')
+                const passengers = firstFlightRoute?.members.map(m => ({
+                  id: m.memberId,
+                  title: 'mr',
+                  given_name: m.name.split(' ')[0],
+                  family_name: m.name.split(' ').slice(1).join(' ') || m.name.split(' ')[0],
+                  born_on: '1990-01-01',
+                  gender: 'male',
+                  email: '',
+                  phone_number: '',
+                })) || []
 
                 const bookingData = {
                   flights: flightBookings,
@@ -1386,41 +1398,54 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                     bookingUrl: selectedHotelOption.bookingUrl,
                   } : null,
                   destination: destCity,
-                  bookedAt: new Date().toISOString(),
-                  totalCost: transportTotal + (selectedHotelOption?.totalPrice || 0),
-                  perPerson: payingHeadcount > 0 ? Math.round((transportTotal + (selectedHotelOption?.totalPrice || 0)) / payingHeadcount) : 0,
+                  totalCost: transportTotal,
+                  perPerson: payingHeadcount > 0 ? Math.round(transportTotal / payingHeadcount) : 0,
                 }
 
-                // Save booking data + update status
-                const supabase = (await import('@/lib/supabase/client')).createClient()
-                await supabase
-                  .from('trips')
-                  .update({ status: 'booked', booking_data: bookingData })
-                  .eq('id', trip.id)
+                // Create Stripe Checkout Session
+                const res = await fetch('/api/checkout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    tripId: trip.id,
+                    bookingData,
+                    offerIds,
+                    passengers,
+                  }),
+                })
 
-                await new Promise(r => setTimeout(r, 800))
+                const data = await res.json()
 
-                if (selectedHotelOption?.bookingUrl) {
-                  window.open(selectedHotelOption.bookingUrl, '_blank')
+                if (!res.ok) {
+                  throw new Error(data.error || 'Failed to create checkout')
                 }
-                router.push(`/trips/${trip.id}?booked=true`)
-              } catch (err) {
-                console.error('Booking save error:', err)
-                alert('Something went wrong saving booking data. Please try again.')
+
+                // Redirect to Stripe Checkout
+                if (data.url) {
+                  window.location.href = data.url
+                }
+              } catch (err: any) {
+                console.error('Checkout error:', err)
+                alert(err.message || 'Something went wrong. Please try again.')
+                setBooking(false)
               }
-              setBooking(false)
             }}
             disabled={booking}
             className="w-full py-4 bg-accent hover:bg-accent-hover disabled:opacity-70 text-white rounded-card font-bold text-lg flex items-center justify-center gap-2 transition-colors shadow-lg"
           >
             {booking ? (
-              <><Loader size={20} className="animate-spin" /> Processing payment...</>
+              <><Loader size={20} className="animate-spin" /> Redirecting to payment...</>
             ) : (
-              <>Pay £{transportTotal.toFixed(2)} for travel <ArrowRight size={20} /></>
+              <>Pay £{transportTotal.toFixed(2)} for flights <ArrowRight size={20} /></>
             )}
           </button>
+          {selectedHotelOption && (
+            <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-input px-3 py-2 text-center">
+              After paying for flights, you&apos;ll be redirected to book your hotel on Booking.com
+            </p>
+          )}
           <p className="text-[11px] text-text-muted text-center">
-            Secure payment via Stripe · All group members emailed their e-tickets · Then book your hotel on Booking.com
+            Secure payment via Stripe · Flights booked instantly · E-tickets emailed to all passengers
           </p>
         </div>
       </div>
