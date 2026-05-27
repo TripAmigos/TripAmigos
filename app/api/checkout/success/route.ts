@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 import { getOffer, createOrder, calculatePricing } from '@/lib/duffel'
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Verify the Stripe session is paid
-    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    const session = await getStripe().checkout.sessions.retrieve(sessionId)
 
     if (session.payment_status !== 'paid') {
       return NextResponse.redirect(`${siteUrl}/trips/${tripId}/options?payment=failed`)
