@@ -114,12 +114,13 @@ export async function GET(request: NextRequest) {
       })
       .eq('id', tripId)
 
-    // Redirect to the trip page with success
-    if (errors.length > 0) {
-      return NextResponse.redirect(`${siteUrl}/trips/${tripId}?booked=true&warnings=true`)
-    }
+    // Redirect — include hotel booking URL if there's a hotel to book
+    const hotelUrl = finalBookingData.hotel?.bookingUrl
+    const params = new URLSearchParams({ booked: 'true' })
+    if (errors.length > 0) params.set('warnings', 'true')
+    if (hotelUrl) params.set('hotel_url', encodeURIComponent(hotelUrl))
 
-    return NextResponse.redirect(`${siteUrl}/trips/${tripId}?booked=true`)
+    return NextResponse.redirect(`${siteUrl}/trips/${tripId}?${params.toString()}`)
   } catch (error: any) {
     console.error('Post-payment processing error:', error)
     // Payment was taken but booking failed — needs manual resolution

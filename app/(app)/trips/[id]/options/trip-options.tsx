@@ -1380,49 +1380,70 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                   phone_number: '',
                 })) || []
 
+                const hotelData = selectedHotelOption ? {
+                  name: selectedHotelOption.name,
+                  address: selectedHotelOption.address,
+                  city: selectedHotelOption.city,
+                  starRating: selectedHotelOption.starRating,
+                  bookingReference: '',
+                  checkIn: trip.date_from,
+                  checkOut: trip.date_to,
+                  rooms: selectedHotelOption.rooms,
+                  roomType: selectedHotelOption.roomType,
+                  totalPrice: selectedHotelOption.totalPrice,
+                  nights: selectedHotelOption.nights,
+                  currency: selectedHotelOption.currency,
+                  bookingUrl: selectedHotelOption.bookingUrl,
+                } : null
+
                 const bookingData = {
                   flights: flightBookings,
-                  hotel: selectedHotelOption ? {
-                    name: selectedHotelOption.name,
-                    address: selectedHotelOption.address,
-                    city: selectedHotelOption.city,
-                    starRating: selectedHotelOption.starRating,
-                    bookingReference: '',
-                    checkIn: trip.date_from,
-                    checkOut: trip.date_to,
-                    rooms: selectedHotelOption.rooms,
-                    roomType: selectedHotelOption.roomType,
-                    totalPrice: selectedHotelOption.totalPrice,
-                    nights: selectedHotelOption.nights,
-                    currency: selectedHotelOption.currency,
-                    bookingUrl: selectedHotelOption.bookingUrl,
-                  } : null,
+                  hotel: hotelData,
                   destination: destCity,
                   totalCost: transportTotal,
                   perPerson: payingHeadcount > 0 ? Math.round(transportTotal / payingHeadcount) : 0,
                 }
 
-                // Create Stripe Checkout Session
-                const res = await fetch('/api/checkout', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    tripId: trip.id,
-                    bookingData,
-                    offerIds,
-                    passengers,
-                  }),
-                })
+                const hasFlights = offerIds.length > 0 && transportTotal > 0
 
-                const data = await res.json()
+                if (hasFlights) {
+                  // ---- FLIGHTS: go to Stripe Checkout ----
+                  const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      tripId: trip.id,
+                      bookingData,
+                      offerIds,
+                      passengers,
+                    }),
+                  })
 
-                if (!res.ok) {
-                  throw new Error(data.error || 'Failed to create checkout')
-                }
+                  const data = await res.json()
 
-                // Redirect to Stripe Checkout
-                if (data.url) {
-                  window.location.href = data.url
+                  if (!res.ok) {
+                    throw new Error(data.error || 'Failed to create checkout')
+                  }
+
+                  // Redirect to Stripe Checkout — after payment, success handler books Duffel + redirects back
+                  if (data.url) {
+                    window.location.href = data.url
+                  }
+                } else {
+                  // ---- NO FLIGHTS (everyone driving): save booking + go to hotel ----
+                  const supabase = (await import('@/lib/supabase/client')).createClient()
+                  await supabase
+                    .from('trips')
+                    .update({
+                      status: 'booked',
+                      booking_data: { ...bookingData, status: 'booked', bookedAt: new Date().toISOString() },
+                    })
+                    .eq('id', trip.id)
+
+                  if (hotelData?.bookingUrl) {
+                    window.open(hotelData.bookingUrl, '_blank')
+                  }
+                  router.push(`/trips/${trip.id}?booked=true`)
                 }
               } catch (err: any) {
                 console.error('Checkout error:', err)
@@ -1435,18 +1456,26 @@ export default function TripOptions({ trip, preferences, members, userId, transp
           >
             {booking ? (
               <><Loader size={20} className="animate-spin" /> Redirecting to payment...</>
-            ) : (
+            ) : transportTotal > 0 ? (
               <>Pay £{transportTotal.toFixed(2)} for flights <ArrowRight size={20} /></>
+            ) : (
+              <>Confirm & book hotel <ArrowRight size={20} /></>
             )}
           </button>
-          {selectedHotelOption && (
+          {transportTotal > 0 && selectedHotelOption && (
             <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-input px-3 py-2 text-center">
-              After paying for flights, you&apos;ll be redirected to book your hotel on Booking.com
+              Step 1: Pay for flights via Stripe → Step 2: Book your hotel on Booking.com
             </p>
           )}
-          <p className="text-[11px] text-text-muted text-center">
-            Secure payment via Stripe · Flights booked instantly · E-tickets emailed to all passengers
-          </p>
+          {transportTotal > 0 ? (
+            <p className="text-[11px] text-text-muted text-center">
+              Secure payment via Stripe · Flights booked instantly · E-tickets emailed to all passengers
+            </p>
+          ) : (
+            <p className="text-[11px] text-text-muted text-center">
+              You&apos;ll be redirected to Booking.com to complete your hotel reservation
+            </p>
+          )}
         </div>
       </div>
     )

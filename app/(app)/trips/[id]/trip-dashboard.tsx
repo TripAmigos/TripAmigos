@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
-import { X, ArrowRight, Clock, UserPlus, Pencil, Trash2, Check, Gift, EyeOff, Loader, Info, Plane, Building2, Mail, RefreshCw, MapPin, Calendar, Star, Train, Car, Receipt } from 'lucide-react'
+import { X, ArrowRight, Clock, UserPlus, Pencil, Trash2, Check, Gift, EyeOff, Loader, Info, Plane, Building2, Mail, RefreshCw, MapPin, Calendar, Star, Train, Car, Receipt, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -123,6 +123,8 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
   const router = useRouter()
   const searchParams = useSearchParams()
   const justBooked = searchParams.get('booked') === 'true'
+  const hotelUrlParam = searchParams.get('hotel_url')
+  const pendingHotelUrl = hotelUrlParam ? decodeURIComponent(hotelUrlParam) : null
   const supabase = createClient()
   const [members, setMembers] = useState<Member[]>(initialMembers)
   const [showBookedBanner, setShowBookedBanner] = useState(justBooked)
@@ -490,9 +492,12 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
                   <Check size={24} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-green-800">Trip booked!</h2>
+                  <h2 className="text-xl font-bold text-green-800">Flights booked!</h2>
                   <p className="text-sm text-green-700 mt-1">
-                    Everyone in your group will receive their booking confirmations by email. You're all set!
+                    {pendingHotelUrl
+                      ? 'Your flights are confirmed. Now complete your trip by booking your hotel below.'
+                      : 'Everyone in your group will receive their booking confirmations by email. You\'re all set!'
+                    }
                   </p>
                 </div>
               </div>
@@ -500,6 +505,26 @@ export default function TripDashboard({ trip, members: initialMembers, preferenc
                 <X size={18} />
               </button>
             </div>
+
+            {pendingHotelUrl && (
+              <div className="border-t border-green-200 pt-4">
+                <div className="bg-[#003580] rounded-card p-5 text-center space-y-3">
+                  <div className="flex items-center justify-center gap-2">
+                    <Building2 size={20} className="text-white" />
+                    <p className="text-lg font-bold text-white">Step 2: Book your hotel</p>
+                  </div>
+                  <p className="text-sm text-blue-100">Complete your trip by booking accommodation on Booking.com</p>
+                  <a
+                    href={pendingHotelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#003580] rounded-input font-bold hover:bg-blue-50 transition-colors"
+                  >
+                    Book hotel on Booking.com <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
+            )}
 
             <div className="border-t border-green-200 pt-4">
               <div className="flex items-start gap-2 mb-3">
