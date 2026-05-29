@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 
     // If already processed (user refreshed the success page), just redirect
     if (bookingData?.status === 'booked') {
-      return NextResponse.redirect(`${siteUrl}/trips/${tripId}?booked=true`)
+      return NextResponse.redirect(`${siteUrl}/trips/${tripId}/booked`)
     }
 
     const offerIds: string[] = bookingData?.offerIds || []
@@ -114,13 +114,14 @@ export async function GET(request: NextRequest) {
       })
       .eq('id', tripId)
 
-    // Redirect — include hotel booking URL if there's a hotel to book
+    // Redirect to the dedicated post-booking page
     const hotelUrl = finalBookingData.hotel?.bookingUrl
-    const params = new URLSearchParams({ booked: 'true' })
+    const params = new URLSearchParams()
     if (errors.length > 0) params.set('warnings', 'true')
     if (hotelUrl) params.set('hotel_url', encodeURIComponent(hotelUrl))
 
-    return NextResponse.redirect(`${siteUrl}/trips/${tripId}?${params.toString()}`)
+    const qs = params.toString()
+    return NextResponse.redirect(`${siteUrl}/trips/${tripId}/booked${qs ? `?${qs}` : ''}`)
   } catch (error: any) {
     console.error('Post-payment processing error:', error)
     // Payment was taken but booking failed — needs manual resolution

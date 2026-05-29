@@ -1443,7 +1443,7 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                   if (hotelData?.bookingUrl) {
                     window.open(hotelData.bookingUrl, '_blank')
                   }
-                  router.push(`/trips/${trip.id}?booked=true`)
+                  router.push(`/trips/${trip.id}/booked${hotelData?.bookingUrl ? `?hotel_url=${encodeURIComponent(hotelData.bookingUrl)}` : ''}`)
                 }
               } catch (err: any) {
                 console.error('Checkout error:', err)
