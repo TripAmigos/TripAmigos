@@ -20,7 +20,7 @@ export default async function TripOptionsPage({
     .select(`
       id, name, date_from, date_to, status, group_size,
       trip_types, payment_method, room_sharing, cost_split, destination_scope, shortlisted_cities, organiser_id,
-      trip_members ( id, member_id, invite_status, role, invite_email, first_name, last_name, guest_name, costs_covered, preferred_airport )
+      trip_members ( id, member_id, invite_status, role, invite_email, first_name, last_name, guest_name, costs_covered, preferred_airport, title, date_of_birth, gender, phone_number )
     `)
     .eq('id', params.id)
     .single()

@@ -130,7 +130,10 @@ interface TravelRoute {
   id: string
   origin: string           // Resolved city name (e.g. "London", "Madrid")
   mode: 'flight' | 'train' | 'drive'
-  members: { name: string; memberId: string; isCovered: boolean; isSurprise: boolean }[]
+  members: {
+    name: string; memberId: string; isCovered: boolean; isSurprise: boolean;
+    title?: string; dateOfBirth?: string; gender?: string; email?: string; phoneNumber?: string;
+  }[]
   passengerCount: number
   // Results
   flightOptions: FlightOption[]
@@ -278,7 +281,17 @@ export default function TripOptions({ trip, preferences, members, userId, transp
         }
       }
 
-      routeMap[routeKey].members.push({ name, memberId: pref.member_id, isCovered, isSurprise })
+      routeMap[routeKey].members.push({
+        name,
+        memberId: pref.member_id,
+        isCovered,
+        isSurprise,
+        title: member?.title || undefined,
+        dateOfBirth: member?.date_of_birth || undefined,
+        gender: member?.gender || undefined,
+        email: member?.invite_email || undefined,
+        phoneNumber: member?.phone_number || undefined,
+      })
       routeMap[routeKey].passengerCount += 1
     })
 
@@ -1336,6 +1349,31 @@ export default function TripOptions({ trip, preferences, members, userId, transp
           </div>
         </div>
 
+        {/* Passenger details warning */}
+        {routes.some(r => r.mode === 'flight') && (() => {
+          const flightMembers = routes.filter(r => r.mode === 'flight').flatMap(r => r.members)
+          const incomplete = flightMembers.filter(m => !m.title || !m.dateOfBirth || !m.gender)
+          if (incomplete.length === 0) return null
+          return (
+            <div className="bg-amber-50 border border-amber-200 rounded-card p-4 space-y-2">
+              <p className="text-sm font-semibold text-amber-800">Missing passenger details</p>
+              <p className="text-xs text-amber-700">
+                The following travellers haven&apos;t submitted their flight details (title, date of birth, gender). Airlines need this to issue tickets.
+              </p>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {incomplete.map(m => (
+                  <span key={m.memberId} className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-medium">
+                    {m.name.split(' ')[0]}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-amber-600 mt-1">
+                You can still book — we&apos;ll use placeholder data — but the airline may reject incomplete bookings.
+              </p>
+            </div>
+          )
+        })()}
+
         {/* Action */}
         <div className="space-y-3">
           <button
@@ -1367,17 +1405,17 @@ export default function TripOptions({ trip, preferences, members, userId, transp
                   .filter(r => r.mode === 'flight' && r.selectedOptionId)
                   .map(r => r.selectedOptionId)
 
-                // Build passenger list from route members
+                // Build passenger list from route members (using real data from preferences)
                 const firstFlightRoute = routes.find(r => r.mode === 'flight')
                 const passengers = firstFlightRoute?.members.map(m => ({
                   id: m.memberId,
-                  title: 'mr',
+                  title: m.title || 'mr',
                   given_name: m.name.split(' ')[0],
                   family_name: m.name.split(' ').slice(1).join(' ') || m.name.split(' ')[0],
-                  born_on: '1990-01-01',
-                  gender: 'male',
-                  email: '',
-                  phone_number: '',
+                  born_on: m.dateOfBirth || '1990-01-01',
+                  gender: m.gender || 'm',
+                  email: m.email || '',
+                  phone_number: m.phoneNumber || '',
                 })) || []
 
                 const hotelData = selectedHotelOption ? {

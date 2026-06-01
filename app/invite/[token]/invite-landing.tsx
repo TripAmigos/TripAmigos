@@ -181,6 +181,12 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
   // Passport name confirmation
   const [passportConfirmed, setPassportConfirmed] = useState(false)
 
+  // Passenger details for flight booking
+  const [passengerTitle, setPassengerTitle] = useState('')
+  const [dateOfBirth, setDateOfBirth] = useState('')
+  const [passengerGender, setPassengerGender] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+
   const currencySymbol = useMemo(() => getCurrencySymbol(), [])
 
   const startDate = new Date(trip.date_from)
@@ -332,6 +338,10 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
         p_flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
         p_dealbreakers: null,
         p_must_haves: mustHaves.length > 0 ? mustHaves : null,
+        p_title: passengerTitle || null,
+        p_date_of_birth: dateOfBirth || null,
+        p_gender: passengerGender || null,
+        p_phone_number: phoneNumber || null,
       })
 
       if (rpcError) {
@@ -516,10 +526,78 @@ export default function InviteLanding({ invite, trip, token, currentUser }: Invi
                 <input type="checkbox" checked={passportConfirmed} onChange={(e) => setPassportConfirmed(e.target.checked)}
                   className="mt-0.5 w-4 h-4 rounded border-border text-accent focus:ring-accent" />
                 <span className="text-xs text-text-secondary font-medium leading-relaxed">
-                  I confirm that the name I've given matches my passport exactly
+                  I confirm that the name I&apos;ve given matches my passport exactly
                 </span>
               </label>
             </div>
+
+            {/* Passenger details for flight booking */}
+            {needsFlights && (
+              <div className="bg-white border border-border rounded-card p-5 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-primary">Your details for flight booking</label>
+                  <p className="text-xs text-text-secondary mt-1">Airlines require these to issue your ticket</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Title */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-text-secondary">Title</label>
+                    <select
+                      value={passengerTitle}
+                      onChange={(e) => setPassengerTitle(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-border rounded-input text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    >
+                      <option value="">Select</option>
+                      <option value="mr">Mr</option>
+                      <option value="mrs">Mrs</option>
+                      <option value="ms">Ms</option>
+                      <option value="miss">Miss</option>
+                      <option value="dr">Dr</option>
+                    </select>
+                  </div>
+
+                  {/* Gender */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-text-secondary">Gender</label>
+                    <select
+                      value={passengerGender}
+                      onChange={(e) => setPassengerGender(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-border rounded-input text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                    >
+                      <option value="">Select</option>
+                      <option value="m">Male</option>
+                      <option value="f">Female</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Date of birth */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-text-secondary">Date of birth</label>
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2.5 border border-border rounded-input text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                  />
+                </div>
+
+                {/* Phone number */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-text-secondary">Phone number</label>
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="+44 7700 900000"
+                    className="w-full px-3 py-2.5 border border-border rounded-input text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                  />
+                  <p className="text-xs text-text-muted">For your airline to contact you about your booking</p>
+                </div>
+              </div>
+            )}
 
             {/* Vote on destinations */}
             {trip.shortlisted_cities && trip.shortlisted_cities.length > 0 && (
