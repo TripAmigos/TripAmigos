@@ -44,31 +44,45 @@ interface Attendee {
 // CACTUS MASCOT
 // ═══════════════════════════════════════════════════════
 
-function CactusMascot({ message }: { message: string }) {
+function CactusMascot({ message, mood = 'happy' }: { message: string; mood?: 'happy' | 'error' | 'excited' | 'thinking' }) {
+  const borderColor = mood === 'error' ? 'border-red-200' : mood === 'excited' ? 'border-sage' : 'border-border'
+  const bgColor = mood === 'error' ? 'bg-red-50' : mood === 'excited' ? 'bg-green-50' : 'bg-white'
+  const textColor = mood === 'error' ? 'text-red-700' : 'text-primary'
+  const animClass = mood === 'excited' ? 'animate-bounce-gentle' : mood === 'error' ? 'animate-wiggle' : 'animate-idle'
+
   return (
     <div className="flex items-start gap-3">
-      <div className="flex-shrink-0">
+      <div className={`flex-shrink-0 ${animClass}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={60} height={80} className="w-[60px] h-auto" />
       </div>
-      <div className="relative bg-white border border-border rounded-card p-3 shadow-sm mt-2 flex-1">
-        <div className="absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-border" />
-        <div className="absolute -left-[6px] top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-white" />
-        <p className="text-sm text-primary leading-relaxed">{message}</p>
+      <div className={`relative ${bgColor} border ${borderColor} rounded-card p-3 shadow-sm mt-2 flex-1 transition-all duration-300`}>
+        <div className={`absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] ${
+          mood === 'error' ? 'border-r-red-200' : mood === 'excited' ? 'border-r-sage' : 'border-r-border'
+        }`} />
+        <div className={`absolute -left-[6px] top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] ${
+          mood === 'error' ? 'border-r-red-50' : mood === 'excited' ? 'border-r-green-50' : 'border-r-white'
+        }`} />
+        <p className={`text-sm ${textColor} leading-relaxed`}>{message}</p>
       </div>
     </div>
   )
 }
 
 // ═══════════════════════════════════════════════════════
-// STEP MESSAGES
+// TRIP TYPE REACTIONS
 // ═══════════════════════════════════════════════════════
 
-const MASCOT_MESSAGES: Record<WizardStep, string> = {
-  1: "Hola! Let's get this trip started. What are we calling it, how many amigos are coming, and what kind of trip is it?",
-  2: "Nice! Now let's nail down the dates and sort out how you're paying and sleeping.",
-  3: "Where are we headed? Pick some destinations for your group to vote on — or let them surprise you!",
-  4: "Last step! Add your crew so we can send them invites. You can always add more later.",
+const TRIP_TYPE_REACTIONS: Record<string, string> = {
+  stag: "A stag do! Let's make it one for the ages. Prague? Budapest? I've got ideas...",
+  hen: "Hen do — amazing! Time to find somewhere fabulous for the crew.",
+  golf: "A golf trip! I may not have thumbs, but I respect the game. Let's find some great courses.",
+  birthday: "Happy birthday to someone special! Let's plan them a trip they'll never forget.",
+  adventure: "Adventure time! I like your style. Somewhere wild and exciting coming right up.",
+  work: "A work trip — let's make sure it's productive AND enjoyable.",
+  weekend: "A weekend getaway — short, sweet, and sorted. Let's do this!",
+  vacation: "A proper vacation! Everyone deserves a good one. Let's plan it right.",
+  other: "Something unique — I love it. Tell me more and we'll figure it out together!",
 }
 
 // ═══════════════════════════════════════════════════════
@@ -292,17 +306,55 @@ export default function CreateTripPage() {
         Step {wizardStep} of 4 — {stepTitles[wizardStep - 1]}
       </p>
 
-      {/* Mascot */}
+      {/* Mascot — contextual messages */}
       <div className="mb-6">
-        <CactusMascot message={MASCOT_MESSAGES[wizardStep]} />
-      </div>
+        <CactusMascot
+          mood={error ? 'error' : (
+            (wizardStep === 1 && tripType) ? 'excited'
+            : (wizardStep === 3 && shortlistedCities.length >= 3) ? 'excited'
+            : (wizardStep === 4 && attendees.length >= parseInt(groupSize) - 1) ? 'excited'
+            : 'happy'
+          )}
+          message={
+            // Errors always take priority
+            error ? (
+              wizardStep === 1 && !tripName.trim() ? "Oi! Every great trip needs a name. What are we calling this one?"
+              : wizardStep === 1 && !tripType ? "Tap one of those trip types — I need to know what we're working with!"
+              : wizardStep === 2 && (!startDate || !endDate) ? "I need dates, amigo! When are we going?"
+              : wizardStep === 2 && !paymentMethod ? "How's everyone paying? Pick one so we can move on."
+              : `Hmm, small problem: ${error}`
+            )
+            // Step 1 contextual
+            : wizardStep === 1 && tripType && TRIP_TYPE_REACTIONS[tripType]
+              ? TRIP_TYPE_REACTIONS[tripType]
+            : wizardStep === 1
+              ? "Hola! I'm your Trip Amigo. Let's get this trip started — what are we calling it?"
 
-      {/* Error */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-card px-4 py-3 text-sm text-red-700 mb-4">
-          {error}
-        </div>
-      )}
+            // Step 2 contextual
+            : wizardStep === 2 && startDate && endDate && paymentMethod
+              ? "Looking good! Everything's filled in — hit Next when you're ready."
+            : wizardStep === 2
+              ? "Nice one! Now let's nail down the dates and sort out how you're paying and sleeping."
+
+            // Step 3 contextual
+            : wizardStep === 3 && shortlistedCities.length >= 3
+              ? `${shortlistedCities.length} destinations locked in — your crew is going to love voting on these!`
+            : wizardStep === 3 && shortlistedCities.length > 0
+              ? `${shortlistedCities.length} so far — add ${3 - shortlistedCities.length} more to give your group a proper choice.`
+            : wizardStep === 3 && destinationsSkipped
+              ? "Fair enough — your crew can suggest their own. Democracy in action!"
+            : wizardStep === 3
+              ? "Where are we headed? Pick some destinations for your group to vote on!"
+
+            // Step 4 contextual
+            : wizardStep === 4 && attendees.length >= parseInt(groupSize) - 1
+              ? "The whole crew's in! Hit 'Create trip' and I'll send out the invites."
+            : wizardStep === 4 && attendees.length > 0
+              ? `${attendees.length} amigo${attendees.length !== 1 ? 's' : ''} added — ${Math.max(parseInt(groupSize) - 1 - attendees.length, 0)} more to go. You can always add people later too.`
+            : "Last step! Add your crew so we can send them invites."
+          }
+        />
+      </div>
 
       {/* ═══════════ STEP 1: The basics ═══════════ */}
       {wizardStep === 1 && (
