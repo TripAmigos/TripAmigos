@@ -60,13 +60,20 @@ export default async function DashboardPage() {
   if (!trips || trips.length === 0) {
     return (
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Hey, {firstName}! 👋
-          </h1>
-          <p className="text-text-secondary mt-2">
-            No trips yet. Let's plan your first adventure.
-          </p>
+        {/* Cactus welcome — no trips */}
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 animate-idle">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={70} height={93} className="w-[70px] h-auto" />
+          </div>
+          <div className="relative bg-white border border-border rounded-card p-4 shadow-sm mt-2 flex-1">
+            <div className="absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-border" />
+            <div className="absolute -left-[6px] top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-white" />
+            <p className="text-base font-semibold text-primary">Hola, {firstName}!</p>
+            <p className="text-sm text-text-secondary mt-1">
+              No trips yet — but that&apos;s about to change. Create your first trip and I&apos;ll help you get everyone sorted.
+            </p>
+          </div>
         </div>
 
         <div className="bg-accent-light border border-accent border-opacity-20 rounded-card p-12 text-center space-y-4">
@@ -93,40 +100,61 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Hey, {firstName}! 👋
-          </h1>
-          <p className="text-text-secondary mt-2">
-            You have {trips.length} trip{trips.length !== 1 ? 's' : ''} planned
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/trips/create"
-            className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-input font-medium transition-colors text-sm"
-          >
-            <Plus size={16} /> New trip
-          </Link>
-          <Link
-            href="/expenses"
-            className="flex items-center gap-2 px-4 py-2 border border-border hover:border-accent hover:text-accent text-text-secondary rounded-input font-medium transition-colors text-sm"
-          >
-            <Receipt size={16} /> Expenses
-          </Link>
-        </div>
-      </div>
+      {/* Cactus greeting — contextual */}
+      {(() => {
+        const pendingPrefs = attendeeList.filter(t => !submittedTripIds.has(t.id)).length
+        const bookedTrips = trips.filter(t => t.status === 'booked').length
+        const collectingTrips = organisedList.filter(t => t.status === 'collecting').length
+        const allResponded = organisedList.filter(t => {
+          const total = t.trip_members?.length || 0
+          const accepted = t.trip_members?.filter((m: any) => m.invite_status === 'accepted').length || 0
+          return total > 0 && accepted === total
+        })
 
-      {/* Action needed banner for attendees */}
-      {attendeeList.filter(t => !submittedTripIds.has(t.id)).length > 0 && (
-        <div className="bg-gradient-to-r from-accent to-[#1d4ed8] rounded-card p-5 text-white space-y-2">
-          <p className="font-bold text-lg">You have preferences to submit!</p>
-          <p className="text-sm text-white/80">
-            {attendeeList.filter(t => !submittedTripIds.has(t.id)).length} trip{attendeeList.filter(t => !submittedTripIds.has(t.id)).length !== 1 ? 's need' : ' needs'} your input so the group can finalise plans.
-          </p>
-        </div>
-      )}
+        let message = `Hola, ${firstName}! You've got ${trips.length} trip${trips.length !== 1 ? 's' : ''} on the go.`
+
+        if (pendingPrefs > 0) {
+          message = `Hey ${firstName}! ${pendingPrefs} trip${pendingPrefs !== 1 ? 's need' : ' needs'} your preferences — don't be the one holding up the group!`
+        } else if (allResponded.length > 0) {
+          message = `${firstName}! The votes are in for ${allResponded[0].name} — time to pick the best options and book!`
+        } else if (bookedTrips > 0 && collectingTrips > 0) {
+          message = `${firstName}! ${bookedTrips} trip${bookedTrips !== 1 ? 's' : ''} booked, ${collectingTrips} still collecting votes. Looking busy!`
+        } else if (bookedTrips > 0) {
+          message = `${firstName}! ${bookedTrips} trip${bookedTrips !== 1 ? 's' : ''} booked and ready to go. Start packing!`
+        } else if (collectingTrips > 0) {
+          message = `Hey ${firstName}! Still waiting on some amigos to submit their preferences. Give them a nudge?`
+        }
+
+        return (
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 animate-idle hidden sm:block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={60} height={80} className="w-[60px] h-auto" />
+            </div>
+            <div className="relative bg-white border border-border rounded-card p-4 shadow-sm mt-1 flex-1">
+              <div className="absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-border hidden sm:block" />
+              <div className="absolute -left-[6px] top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-white hidden sm:block" />
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm text-primary leading-relaxed">{message}</p>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Link
+                    href="/trips/create"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-accent-hover text-white rounded-input font-medium transition-colors text-xs"
+                  >
+                    <Plus size={14} /> New trip
+                  </Link>
+                  <Link
+                    href="/expenses"
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-border hover:border-accent hover:text-accent text-text-secondary rounded-input font-medium transition-colors text-xs"
+                  >
+                    <Receipt size={14} />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Trips you're attending (show first if action needed) */}
       {attendeeList.length > 0 && (

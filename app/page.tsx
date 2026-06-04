@@ -36,18 +36,32 @@ export default function Home() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-[#F7F4EE] via-white to-white pointer-events-none" />
 
-          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-6 md:pt-28 md:pb-12 text-center space-y-6 md:space-y-7">
-            <div className="space-y-5">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl mx-auto">
-                Stop being the group&apos;s
-                <span className="block text-accent mt-1">unpaid travel agent.</span>
-              </h1>
-              <p className="text-base md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-                Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
-              </p>
+          <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-6 md:pt-28 md:pb-12 space-y-6 md:space-y-7">
+            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+              {/* Cactus mascot */}
+              <div className="flex-shrink-0 animate-idle hidden md:block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={140} height={187} className="w-[140px] h-auto drop-shadow-lg" />
+              </div>
+
+              <div className="space-y-5 text-center md:text-left flex-1">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl">
+                  Stop being the group&apos;s
+                  <span className="block text-accent mt-1">unpaid travel agent.</span>
+                </h1>
+                <p className="text-base md:text-xl text-text-secondary max-w-2xl leading-relaxed">
+                  Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
+                </p>
+              </div>
+
+              {/* Mobile cactus — smaller, centred */}
+              <div className="flex-shrink-0 animate-idle md:hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={80} height={107} className="w-[80px] h-auto drop-shadow-lg" />
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-2">
               <Link
                 href="/signup"
                 className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-accent text-white rounded-input font-semibold hover:bg-accent-hover transition-colors shadow-sm shadow-accent/20 text-base sm:text-lg"
