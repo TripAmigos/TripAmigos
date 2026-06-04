@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       {/* Sticky Nav */}
-      <nav className="border-b border-border bg-white/90 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-border bg-cream/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
           <Logo size="md" linkTo="/" />
           <div className="flex gap-2 sm:gap-3">
@@ -34,7 +34,7 @@ export default function Home() {
       <main className="flex-1">
         {/* ═══════════════════ HERO + PAIN POINTS ═══════════════════ */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-50/70 via-white to-white pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#F7F4EE] via-white to-white pointer-events-none" />
 
           <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-6 md:pt-28 md:pb-12 text-center space-y-6 md:space-y-7">
             <div className="space-y-5">
@@ -276,18 +276,18 @@ export default function Home() {
         </section>
 
         {/* ═══════════════════ FINAL CTA ═══════════════════ */}
-        <section className="bg-gradient-to-r from-accent to-blue-500">
+        <section className="bg-gradient-to-r from-accent to-[#d4816f]">
           <div className="max-w-3xl mx-auto px-5 sm:px-4 py-12 md:py-20 text-center space-y-5 md:space-y-6">
             <h2 className="text-2xl md:text-4xl font-bold text-white text-balance">
               Stop being the group&apos;s unpaid travel agent.
             </h2>
-            <p className="text-blue-100 text-base md:text-lg max-w-xl mx-auto">
+            <p className="text-white/80 text-base md:text-lg max-w-xl mx-auto">
               Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-blue-50 transition-colors shadow-lg text-base sm:text-lg"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-white text-accent rounded-input font-semibold hover:bg-cream transition-colors shadow-lg text-base sm:text-lg"
               >
                 Plan your first trip
                 <ArrowRight size={20} />
