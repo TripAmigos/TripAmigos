@@ -3,52 +3,22 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader, X, Plus, Search, Gift, EyeOff, ChevronDown } from 'lucide-react'
+import { Loader, X, Plus, Search, Gift, EyeOff, ChevronDown, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Region, regionLabels, regionIcons, searchDestinations } from '@/lib/destinations'
 import { searchTravelHubs, getHubLabel, TravelHub } from '@/lib/travel-hubs'
 
-type Step = 'basics' | 'attendees_preferences'
-type TripMode = 'collaborative' | 'organiser_decides'
-
-const NATIONALITIES = [
-  'Afghan', 'Albanian', 'Algerian', 'American', 'Andorran', 'Angolan', 'Antiguan', 'Argentine',
-  'Armenian', 'Australian', 'Austrian', 'Azerbaijani', 'Bahamian', 'Bahraini', 'Bangladeshi',
-  'Barbadian', 'Belarusian', 'Belgian', 'Belizean', 'Beninese', 'Bhutanese', 'Bolivian',
-  'Bosnian', 'Brazilian', 'British', 'Bruneian', 'Bulgarian', 'Burkinabe', 'Burmese',
-  'Burundian', 'Cambodian', 'Cameroonian', 'Canadian', 'Cape Verdean', 'Central African',
-  'Chadian', 'Chilean', 'Chinese', 'Colombian', 'Comoran', 'Congolese', 'Costa Rican',
-  'Croatian', 'Cuban', 'Cypriot', 'Czech', 'Danish', 'Djiboutian', 'Dominican', 'Dutch',
-  'East Timorese', 'Ecuadorean', 'Egyptian', 'Emirati', 'English', 'Equatorial Guinean',
-  'Eritrean', 'Estonian', 'Ethiopian', 'Fijian', 'Filipino', 'Finnish', 'French',
-  'Gabonese', 'Gambian', 'Georgian', 'German', 'Ghanaian', 'Greek', 'Grenadian',
-  'Guatemalan', 'Guinean', 'Guyanese', 'Haitian', 'Honduran', 'Hungarian', 'Icelandic',
-  'Indian', 'Indonesian', 'Iranian', 'Iraqi', 'Irish', 'Israeli', 'Italian', 'Ivorian',
-  'Jamaican', 'Japanese', 'Jordanian', 'Kazakh', 'Kenyan', 'Kuwaiti', 'Kyrgyz', 'Laotian',
-  'Latvian', 'Lebanese', 'Liberian', 'Libyan', 'Lithuanian', 'Luxembourgish', 'Macedonian',
-  'Malagasy', 'Malawian', 'Malaysian', 'Maldivian', 'Malian', 'Maltese', 'Mauritanian',
-  'Mauritian', 'Mexican', 'Moldovan', 'Monacan', 'Mongolian', 'Montenegrin', 'Moroccan',
-  'Mozambican', 'Namibian', 'Nepalese', 'New Zealand', 'Nicaraguan', 'Nigerian', 'North Korean',
-  'Northern Irish', 'Norwegian', 'Omani', 'Pakistani', 'Panamanian', 'Papua New Guinean',
-  'Paraguayan', 'Peruvian', 'Polish', 'Portuguese', 'Qatari', 'Romanian', 'Russian',
-  'Rwandan', 'Saint Lucian', 'Salvadoran', 'Samoan', 'Saudi', 'Scottish', 'Senegalese',
-  'Serbian', 'Seychellois', 'Sierra Leonean', 'Singaporean', 'Slovak', 'Slovenian',
-  'Solomon Islander', 'Somali', 'South African', 'South Korean', 'Spanish', 'Sri Lankan',
-  'Sudanese', 'Surinamese', 'Swazi', 'Swedish', 'Swiss', 'Syrian', 'Taiwanese', 'Tajik',
-  'Tanzanian', 'Thai', 'Togolese', 'Tongan', 'Trinidadian', 'Tunisian', 'Turkish',
-  'Turkmen', 'Tuvaluan', 'Ugandan', 'Ukrainian', 'Uruguayan', 'Uzbek', 'Venezuelan',
-  'Vietnamese', 'Welsh', 'Yemeni', 'Zambian', 'Zimbabwean',
-]
+type WizardStep = 1 | 2 | 3 | 4
 
 const TRIP_TYPE_OPTIONS = [
-  { value: 'vacation', label: 'Vacation' },
-  { value: 'weekend', label: 'Weekend getaway' },
-  { value: 'stag', label: 'Stag do' },
-  { value: 'hen', label: 'Hen do' },
-  { value: 'golf', label: 'Golf trip' },
-  { value: 'birthday', label: 'Birthday trip' },
-  { value: 'work', label: 'Work trip' },
-  { value: 'adventure', label: 'Adventure' },
-  { value: 'other', label: 'Other' },
+  { value: 'vacation', label: 'Vacation', emoji: '🌴' },
+  { value: 'weekend', label: 'Weekend getaway', emoji: '✈️' },
+  { value: 'stag', label: 'Stag do', emoji: '🎉' },
+  { value: 'hen', label: 'Hen do', emoji: '👑' },
+  { value: 'golf', label: 'Golf trip', emoji: '⛳' },
+  { value: 'birthday', label: 'Birthday trip', emoji: '🎂' },
+  { value: 'work', label: 'Work trip', emoji: '💼' },
+  { value: 'adventure', label: 'Adventure', emoji: '🧗' },
+  { value: 'other', label: 'Other', emoji: '🗺️' },
 ]
 
 const TRIP_TYPE_PRESETS: Record<string, string[]> = {
@@ -60,24 +30,6 @@ const TRIP_TYPE_PRESETS: Record<string, string[]> = {
   weekend: ['Amsterdam, Netherlands', 'Paris, France', 'Brussels, Belgium', 'Dublin, Ireland', 'Barcelona, Spain'],
 }
 
-const TRIP_TYPE_EMOJIS: Record<string, string> = {
-  stag: '🎉',
-  hen: '👑',
-  golf: '⛳',
-  birthday: '🎂',
-  adventure: '🧗',
-  weekend: '✈️',
-}
-
-const MUST_HAVE_OPTIONS = [
-  'Swimming pool', 'Wi-Fi', 'Near the beach', 'Air conditioning', 'Gym / fitness',
-  'Kitchen / self-catering', 'Parking', 'Pet-friendly', 'Wheelchair accessible',
-  'Balcony / terrace', 'City centre location', 'Nightlife nearby', 'Family-friendly',
-  'Spa / wellness', 'All-inclusive', 'Late checkout', 'Airport transfer',
-  'Breakfast included', 'Sea view', 'Private bathroom',
-]
-
-
 interface Attendee {
   id: string
   firstName: string
@@ -88,34 +40,86 @@ interface Attendee {
   preferredAirport?: string
 }
 
+// ═══════════════════════════════════════════════════════
+// CACTUS MASCOT
+// ═══════════════════════════════════════════════════════
+
+function CactusMascot({ message, size = 'md' }: { message: string; size?: 'sm' | 'md' }) {
+  const h = size === 'sm' ? 60 : 80
+  const w = size === 'sm' ? 50 : 66
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex-shrink-0">
+        <svg width={w} height={h} viewBox="0 0 66 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Sombrero */}
+          <ellipse cx="33" cy="22" rx="30" ry="6" fill="#C86552" />
+          <ellipse cx="33" cy="20" rx="18" ry="5" fill="#d4816f" />
+          <path d="M20 20 Q33 2 46 20" fill="#C86552" />
+          <ellipse cx="33" cy="20" rx="13" ry="3.5" fill="#d4816f" />
+          {/* Body */}
+          <rect x="22" y="25" rx="11" ry="11" width="22" height="38" fill="#A3B7A0" />
+          {/* Left arm */}
+          <rect x="10" y="32" rx="5" ry="5" width="12" height="20" fill="#A3B7A0" />
+          <rect x="10" y="28" rx="4" ry="4" width="12" height="10" fill="#A3B7A0" />
+          {/* Right arm */}
+          <rect x="44" y="35" rx="5" ry="5" width="12" height="18" fill="#A3B7A0" />
+          <rect x="44" y="30" rx="4" ry="4" width="12" height="10" fill="#A3B7A0" />
+          {/* Eyes */}
+          <circle cx="29" cy="38" r="2.5" fill="#3A3532" />
+          <circle cx="37" cy="38" r="2.5" fill="#3A3532" />
+          {/* Smile */}
+          <path d="M28 44 Q33 49 38 44" stroke="#3A3532" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          {/* Feet */}
+          <ellipse cx="28" cy="64" rx="6" ry="3" fill="#8a9e87" />
+          <ellipse cx="38" cy="64" rx="6" ry="3" fill="#8a9e87" />
+        </svg>
+      </div>
+      <div className="relative bg-white border border-border rounded-card p-3 shadow-sm mt-2 flex-1">
+        <div className="absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-border" />
+        <div className="absolute -left-[6px] top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-white" />
+        <p className="text-sm text-primary leading-relaxed">{message}</p>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════
+// STEP MESSAGES
+// ═══════════════════════════════════════════════════════
+
+const MASCOT_MESSAGES: Record<WizardStep, string> = {
+  1: "Hola! Let's get this trip started. What are we calling it, how many amigos are coming, and what kind of trip is it?",
+  2: "Nice! Now let's nail down the dates and sort out how you're paying and sleeping.",
+  3: "Where are we headed? Pick some destinations for your group to vote on — or let them surprise you!",
+  4: "Last step! Add your crew so we can send them invites. You can always add more later.",
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════
+
 export default function CreateTripPage() {
   const router = useRouter()
   const supabase = createClient()
-  const [step, setStep] = useState<Step>('basics')
+  const [wizardStep, setWizardStep] = useState<WizardStep>(1)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Step 1: Trip Basics
+  // Step 1: The basics
   const [tripName, setTripName] = useState('')
   const [groupSize, setGroupSize] = useState('4')
+  const [tripType, setTripType] = useState('')
+
+  // Step 2: Dates, payment, rooms
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
-  const [tripType, setTripType] = useState('vacation')
   const [paymentMethod, setPaymentMethod] = useState<'organiser_pays' | 'individual_pays' | ''>('')
   const [roomSharing, setRoomSharing] = useState<'shared' | 'individual' | ''>('')
   const [customRoomCount, setCustomRoomCount] = useState('')
   const [bedPreference, setBedPreference] = useState<'no_preference' | 'double' | 'twin' | 'single'>('no_preference')
-  // Cost split is always 'even' — exact split was removed for simplicity
-  const [tripMode, setTripMode] = useState<TripMode>('collaborative')
-  const [votingOn, setVotingOn] = useState<Record<string, boolean>>({
-    destinations: true,
-    dates: true,
-    budget: true,
-    hotel_style: true,
-  })
-  const toggleVoting = (key: string) => {
-    setVotingOn(prev => ({ ...prev, [key]: !prev[key] }))
-  }
+
+  // Step 3: Destinations
+  const [tripMode, setTripMode] = useState<'collaborative' | 'organiser_decides'>('collaborative')
   const [destinationScope, setDestinationScope] = useState<Region>('anywhere')
   const [shortlistInput, setShortlistInput] = useState('')
   const [shortlistedCities, setShortlistedCities] = useState<string[]>([])
@@ -123,95 +127,21 @@ export default function CreateTripPage() {
   const [destinationsSkipped, setDestinationsSkipped] = useState(false)
   const [presetsApplied, setPresetsApplied] = useState(false)
 
-  // Step 2: Attendees & Preferences
+  // Step 4: Attendees
   const [attendees, setAttendees] = useState<Attendee[]>([])
   const [newAttendeeEmail, setNewAttendeeEmail] = useState('')
   const [newAttendeeFirstName, setNewAttendeeFirstName] = useState('')
   const [newAttendeeLastName, setNewAttendeeLastName] = useState('')
   const [passportConfirmed, setPassportConfirmed] = useState(false)
 
-  // Preferences
-  const [nationality, setNationality] = useState('')
-  const [nationalitySearch, setNationalitySearch] = useState('')
-  const [showNationalityDropdown, setShowNationalityDropdown] = useState(false)
-  const [destinationVotes, setDestinationVotes] = useState<string[]>([])
-  const [transportPreference, setTransportPreference] = useState('')
-  const [directFlightsOnly, setDirectFlightsOnly] = useState(false)
-  const [flightTimePreferences, setFlightTimePreferences] = useState<string[]>([])
-  const toggleFlightTime = (value: string) => {
-    if (value === 'no_preference') {
-      setFlightTimePreferences(prev => prev.includes('no_preference') ? [] : ['no_preference'])
-      return
-    }
-    setFlightTimePreferences(prev => {
-      const withoutNoPref = prev.filter(v => v !== 'no_preference')
-      if (withoutNoPref.includes(value)) return withoutNoPref.filter(v => v !== value)
-      return [...withoutNoPref, value]
-    })
-  }
-  const [preferredAirport, setPreferredAirport] = useState('')
-  const [hubSearchInput, setHubSearchInput] = useState('')
-  const [showHubDropdown, setShowHubDropdown] = useState(false)
-  const [accommodationType, setAccommodationType] = useState('')
-  const [accommodationRating, setAccommodationRating] = useState('')
-  const [budgetTier, setBudgetTier] = useState<'budget' | 'mid' | 'bougie' | 'blowout' | ''>('')
-  const [budgetMin, setBudgetMin] = useState('')
-  const [budgetMax, setBudgetMax] = useState('')
-  const [showCustomBudget, setShowCustomBudget] = useState(false)
-  const [mustHaves, setMustHaves] = useState<string[]>([])
-  const [showMustHaveDropdown, setShowMustHaveDropdown] = useState(false)
-
-  const filteredNationalities = useMemo(() => {
-    if (!nationalitySearch) return NATIONALITIES.slice(0, 30)
-    const q = nationalitySearch.toLowerCase()
-    return NATIONALITIES.filter(n => n.toLowerCase().includes(q)).slice(0, 30)
-  }, [nationalitySearch])
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [step])
+  }, [wizardStep])
 
-  const handleToggleDestinationVote = (city: string) => {
-    if (destinationVotes.includes(city)) {
-      setDestinationVotes(destinationVotes.filter(d => d !== city))
-    } else if (destinationVotes.length < 3) {
-      setDestinationVotes([...destinationVotes, city])
-    }
-  }
-
-  const handleAddAttendee = () => {
-    setError('')
-    if (!newAttendeeEmail || !newAttendeeFirstName || !newAttendeeLastName) {
-      setError('Please enter first name, last name, and email')
-      return
-    }
-    if (attendees.find((a) => a.email === newAttendeeEmail)) {
-      setError('This email is already added')
-      return
-    }
-
-    const attendee: Attendee = {
-      id: Date.now().toString(),
-      email: newAttendeeEmail,
-      firstName: newAttendeeFirstName,
-      lastName: newAttendeeLastName,
-      costsCovered: false,
-      role: 'attendee',
-    }
-
-    setAttendees([...attendees, attendee])
-    setNewAttendeeEmail('')
-    setNewAttendeeFirstName('')
-    setNewAttendeeLastName('')
-  }
-
-  const handleRemoveAttendee = (id: string) => {
-    setAttendees(attendees.filter((a) => a.id !== id))
-  }
+  // ─── Helpers ────────────────────────────────────────
 
   const handleApplyPreset = () => {
     if (presetsApplied) {
-      // Untick — clear the preset cities
       setShortlistedCities([])
       setPresetsApplied(false)
       return
@@ -226,81 +156,79 @@ export default function CreateTripPage() {
     }
   }
 
-  const handleBudgetTierChange = (tier: 'budget' | 'mid' | 'bougie' | 'blowout') => {
-    setBudgetTier(tier)
-    setShowCustomBudget(false)
-
-    const tierRanges = {
-      budget: { min: '0', max: '500' },
-      mid: { min: '500', max: '1000' },
-      bougie: { min: '1000', max: '2000' },
-      blowout: { min: '2000', max: '' },
-    }
-
-    const range = tierRanges[tier]
-    setBudgetMin(range.min)
-    setBudgetMax(range.max)
-  }
-
-  const handleNextStep = () => {
+  const handleAddAttendee = () => {
     setError('')
-
-    if (step === 'basics') {
-      if (!tripName || !startDate || !endDate) {
-        setError('Please fill in all required fields')
-        return
-      }
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      if (new Date(startDate) < today) {
-        setError('Start date can\'t be in the past')
-        return
-      }
-      if (new Date(endDate) < today) {
-        setError('End date can\'t be in the past')
-        return
-      }
-      if (new Date(startDate) >= new Date(endDate)) {
-        setError('End date must be after start date')
-        return
-      }
-      if (!paymentMethod) {
-        setError('Please choose a payment method')
-        return
-      }
-      if (tripMode === 'collaborative' && votingOn.destinations && !destinationsSkipped && shortlistedCities.length < 3) {
-        setError('Please shortlist at least 3 destinations or choose "Let attendees decide"')
-        return
-      }
-      setStep('attendees_preferences')
+    if (!newAttendeeEmail || !newAttendeeFirstName || !newAttendeeLastName) {
+      setError('Please enter first name, last name, and email')
+      return
     }
+    if (attendees.find((a) => a.email === newAttendeeEmail)) {
+      setError('This email is already added')
+      return
+    }
+
+    setAttendees([...attendees, {
+      id: Date.now().toString(),
+      email: newAttendeeEmail,
+      firstName: newAttendeeFirstName,
+      lastName: newAttendeeLastName,
+      costsCovered: false,
+      role: 'attendee',
+    }])
+    setNewAttendeeEmail('')
+    setNewAttendeeFirstName('')
+    setNewAttendeeLastName('')
   }
 
-  const handleBackStep = () => {
+  // ─── Validation ─────────────────────────────────────
+
+  const validateStep = (step: WizardStep): boolean => {
     setError('')
-    if (step === 'attendees_preferences') {
-      setStep('basics')
+    switch (step) {
+      case 1:
+        if (!tripName.trim()) { setError('Give your trip a name'); return false }
+        if (!tripType) { setError('Pick a trip type'); return false }
+        return true
+      case 2:
+        if (!startDate || !endDate) { setError('Please set your dates'); return false }
+        const today = new Date(); today.setHours(0,0,0,0)
+        if (new Date(startDate) < today) { setError("Start date can't be in the past"); return false }
+        if (new Date(endDate) <= new Date(startDate)) { setError('End date must be after start date'); return false }
+        if (!paymentMethod) { setError('Please choose a payment method'); return false }
+        return true
+      case 3:
+        if (tripMode === 'collaborative' && !destinationsSkipped && shortlistedCities.length < 3) {
+          setError('Please shortlist at least 3 destinations or choose "Let attendees decide"')
+          return false
+        }
+        return true
+      case 4:
+        return true
     }
   }
 
-  const handleCreateTrip = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleNext = () => {
+    if (validateStep(wizardStep)) {
+      setWizardStep((wizardStep + 1) as WizardStep)
+    }
+  }
+
+  const handleBack = () => {
+    setError('')
+    setWizardStep((wizardStep - 1) as WizardStep)
+  }
+
+  // ─── Create trip ────────────────────────────────────
+
+  const handleCreateTrip = async () => {
     setError('')
     setLoading(true)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setError('You must be logged in'); setLoading(false); return }
 
-      if (!user) {
-        setError('You must be logged in')
-        setLoading(false)
-        return
-      }
-
-      // Create trip
-      const { data: trip, error: tripError } = await supabase
+      const { data: trip, error: tripError } = await (supabase as any)
         .from('trips')
         .insert({
           name: tripName,
@@ -320,14 +248,10 @@ export default function CreateTripPage() {
         .select()
         .single()
 
-      if (tripError) {
-        setError(tripError.message)
-        setLoading(false)
-        return
-      }
+      if (tripError) { setError(tripError.message); setLoading(false); return }
 
       // Add organiser as trip member
-      await supabase.from('trip_members').insert({
+      await (supabase as any).from('trip_members').insert({
         trip_id: trip.id,
         member_id: user.id,
         role: 'organiser',
@@ -335,75 +259,19 @@ export default function CreateTripPage() {
       })
 
       // Add attendees
-      const attendeeInserts = attendees.map((attendee) => ({
-        trip_id: trip.id,
-        invite_email: attendee.email,
-        first_name: attendee.firstName,
-        last_name: attendee.lastName,
-        role: attendee.role as string,
-        invite_status: attendee.role === 'surprise' ? 'accepted' as const : 'pending' as const,
-        costs_covered: attendee.costsCovered,
-        preferred_airport: attendee.preferredAirport || null,
-      }))
-
-      if (attendeeInserts.length > 0) {
-        await supabase.from('trip_members').insert(attendeeInserts)
-      }
-
-      // Save organiser's preferences
-      const { data: tripMember } = await supabase
-        .from('trip_members')
-        .select('id')
-        .eq('trip_id', trip.id)
-        .eq('member_id', user.id)
-        .single()
-
-      if (tripMember) {
-        await supabase.from('member_preferences').insert({
-          trip_id: trip.id,
-          member_id: user.id,
-          trip_member_id: tripMember.id,
-          nationality: nationality || null,
-          preferred_airport: preferredAirport || null,
-          budget_min: budgetMin ? parseInt(budgetMin) : null,
-          budget_max: budgetMax ? parseInt(budgetMax) : null,
-          preferred_destinations: destinationVotes.length > 0 ? destinationVotes : null,
-          accommodation_type: accommodationType || null,
-          accommodation_rating_min: accommodationRating ? parseInt(accommodationRating) : null,
-          transport_preference: transportPreference || null,
-          direct_flights_only: directFlightsOnly,
-          flight_time_preference: flightTimePreferences.length > 0 ? JSON.stringify(flightTimePreferences) : null,
-          dealbreakers: null,
-          must_haves: mustHaves.length > 0 ? mustHaves : null,
-          is_submitted: true,
-          submitted_at: new Date().toISOString(),
-        })
-      }
-
-      // For surprise attendees, auto-create their preferences
-      const surpriseAttendees = attendees.filter(a => a.role === 'surprise')
-      if (surpriseAttendees.length > 0) {
-        const { data: surpriseMembers } = await supabase
-          .from('trip_members')
-          .select('id, invite_email, preferred_airport')
-          .eq('trip_id', trip.id)
-          .eq('role', 'surprise')
-
-        if (surpriseMembers) {
-          const surprisePrefs = surpriseMembers.map(sm => {
-            const matchingAttendee = surpriseAttendees.find(a => a.email === sm.invite_email)
-            return {
-              trip_id: trip.id,
-              member_id: null,
-              trip_member_id: sm.id,
-              preferred_airport: matchingAttendee?.preferredAirport || sm.preferred_airport || null,
-              transport_preference: transportPreference || 'flight',
-              is_submitted: true,
-              submitted_at: new Date().toISOString(),
-            }
-          })
-          await supabase.from('member_preferences').insert(surprisePrefs)
-        }
+      if (attendees.length > 0) {
+        await (supabase as any).from('trip_members').insert(
+          attendees.map((a) => ({
+            trip_id: trip.id,
+            invite_email: a.email,
+            first_name: a.firstName,
+            last_name: a.lastName,
+            role: a.role as string,
+            invite_status: a.role === 'surprise' ? 'accepted' : 'pending',
+            costs_covered: a.costsCovered,
+            preferred_airport: a.preferredAirport || null,
+          }))
+        )
       }
 
       router.push(`/trips/${trip.id}/created`)
@@ -414,1281 +282,503 @@ export default function CreateTripPage() {
     }
   }
 
-  const stepLabels = {
-    basics: 'Trip basics',
-    attendees_preferences: 'Attendees & preferences',
-  }
+  // ═══════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════
+
+  const stepTitles = ['The basics', 'Dates & logistics', 'Destinations', 'Your crew']
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-primary">
-            Create a new trip
-          </h1>
-          <p className="text-text-secondary">
-            Step {step === 'basics' ? 1 : 2} of 2: {stepLabels[step]}
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="flex gap-2">
-          <div
-            className={`h-1 flex-1 rounded-full ${
-              step === 'basics' ? 'bg-accent' : 'bg-success'
-            }`}
-          />
-          <div
-            className={`h-1 flex-1 rounded-full ${
-              step === 'attendees_preferences' ? 'bg-accent' : 'bg-border'
-            }`}
-          />
-        </div>
-
-        {/* Error Banner */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-card px-4 py-3 text-sm text-red-700">
-            {error}
+    <div className="max-w-xl mx-auto px-4 py-6">
+      {/* Progress dots */}
+      <div className="flex items-center justify-center gap-2 mb-6">
+        {[1, 2, 3, 4].map((s) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+              s < wizardStep ? 'bg-sage text-white'
+              : s === wizardStep ? 'bg-accent text-white'
+              : 'bg-border text-text-muted'
+            }`}>
+              {s < wizardStep ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              ) : s}
+            </div>
+            {s < 4 && (
+              <div className={`w-8 h-0.5 ${s < wizardStep ? 'bg-sage' : 'bg-border'}`} />
+            )}
           </div>
-        )}
+        ))}
+      </div>
 
-        {/* Form */}
-        <form className="space-y-6">
-          {step === 'basics' && (
-            <div className="space-y-5">
-              {/* Trip Name */}
-              <div>
-                <label htmlFor="trip-name" className="block text-sm font-medium text-primary mb-2">
-                  Trip name
-                </label>
-                <input
-                  id="trip-name"
-                  type="text"
-                  value={tripName}
-                  onChange={(e) => setTripName(e.target.value)}
-                  placeholder="e.g., Barcelona Spring Break"
-                  className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                />
-              </div>
+      {/* Step title */}
+      <p className="text-center text-xs font-medium text-text-muted uppercase tracking-wider mb-4">
+        Step {wizardStep} of 4 — {stepTitles[wizardStep - 1]}
+      </p>
 
-              {/* Group Size & Trip Type */}
-              <div className="grid grid-cols-2 gap-4">
+      {/* Mascot */}
+      <div className="mb-6">
+        <CactusMascot message={MASCOT_MESSAGES[wizardStep]} />
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-card px-4 py-3 text-sm text-red-700 mb-4">
+          {error}
+        </div>
+      )}
+
+      {/* ═══════════ STEP 1: The basics ═══════════ */}
+      {wizardStep === 1 && (
+        <div className="space-y-5">
+          {/* Trip name */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">What should we call this trip?</label>
+            <input
+              type="text"
+              value={tripName}
+              onChange={(e) => setTripName(e.target.value)}
+              placeholder="e.g. Jake's Stag Do, Summer 2026"
+              className="w-full px-4 py-3 border border-border rounded-card bg-white text-primary placeholder-text-muted text-base"
+              autoFocus
+            />
+          </div>
+
+          {/* Group size */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">How many people are going?</label>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => setGroupSize(String(Math.max(2, parseInt(groupSize) - 1)))}
+                className="w-10 h-10 rounded-full border-2 border-border text-primary font-bold hover:bg-bg-soft transition-colors flex items-center justify-center">-</button>
+              <span className="text-2xl font-bold text-primary w-12 text-center">{groupSize}</span>
+              <button type="button" onClick={() => setGroupSize(String(Math.min(50, parseInt(groupSize) + 1)))}
+                className="w-10 h-10 rounded-full border-2 border-border text-primary font-bold hover:bg-bg-soft transition-colors flex items-center justify-center">+</button>
+              <span className="text-sm text-text-secondary ml-2">people (including you)</span>
+            </div>
+          </div>
+
+          {/* Trip type */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">What kind of trip is it?</label>
+            <div className="grid grid-cols-3 gap-2">
+              {TRIP_TYPE_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setTripType(option.value)}
+                  className={`relative p-3 rounded-card border-2 text-center transition-all ${
+                    tripType === option.value
+                      ? 'border-accent bg-accent-light'
+                      : 'border-border hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="text-xl mb-1">{option.emoji}</div>
+                  <p className="text-xs font-medium text-primary">{option.label}</p>
+                  {tripType === option.value && (
+                    <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-accent flex items-center justify-center">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════ STEP 2: Dates & logistics ═══════════ */}
+      {wizardStep === 2 && (
+        <div className="space-y-5">
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">Start date</label>
+              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-3 border border-border rounded-card bg-white text-primary" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">End date</label>
+              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-4 py-3 border border-border rounded-card bg-white text-primary" />
+            </div>
+          </div>
+
+          {/* Payment */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-3">How are you handling payment?</label>
+            <div className="space-y-2">
+              {[
+                { value: 'organiser_pays', title: 'One card', desc: "You collect the money and pay for everything. Quickest way to lock in the booking." },
+                { value: 'individual_pays', title: 'Split', desc: "Everyone gets a payment link and pays their own share before booking." },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setPaymentMethod(opt.value as any)}
+                  className={`w-full relative p-4 rounded-card border-2 text-left transition-all ${
+                    paymentMethod === opt.value ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-primary">{opt.title}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">{opt.desc}</p>
+                  {paymentMethod === opt.value && (
+                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Room sharing */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-3">Room sharing</label>
+            <div className="space-y-2">
+              {[
+                { value: 'shared', title: 'Happy to share', desc: 'Fewer rooms, lower cost. People pair up.' },
+                { value: 'individual', title: 'Own rooms', desc: 'Everyone gets their own room.' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setRoomSharing(opt.value as any)}
+                  className={`w-full relative p-4 rounded-card border-2 text-left transition-all ${
+                    roomSharing === opt.value ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-primary">{opt.title}</p>
+                  <p className="text-xs text-text-secondary mt-0.5">{opt.desc}</p>
+                  {roomSharing === opt.value && (
+                    <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {roomSharing === 'shared' && (
+              <div className="mt-3 p-4 bg-bg-soft rounded-card border border-border space-y-3">
                 <div>
-                  <label htmlFor="group-size" className="block text-sm font-medium text-primary mb-2">
-                    Group size
-                  </label>
-                  <input
-                    id="group-size"
-                    type="number"
-                    min="2"
-                    max="50"
-                    value={groupSize}
-                    onChange={(e) => setGroupSize(e.target.value)}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
-                  />
+                  <label className="block text-xs font-medium text-text-secondary mb-1.5">Number of rooms</label>
+                  <div className="flex items-center gap-2">
+                    <input type="number" min="1" max={parseInt(groupSize)}
+                      value={customRoomCount || Math.ceil(parseInt(groupSize) / 2)}
+                      onChange={(e) => setCustomRoomCount(e.target.value)}
+                      className="w-20 px-3 py-1.5 border border-border rounded-input bg-white text-primary text-sm" />
+                    <span className="text-xs text-text-muted">for {groupSize} people</span>
+                  </div>
                 </div>
-
                 <div>
-                  <label htmlFor="trip-type" className="block text-sm font-medium text-primary mb-2">
-                    Trip type
-                  </label>
-                  <select
-                    id="trip-type"
-                    value={tripType}
-                    onChange={(e) => setTripType(e.target.value)}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
-                  >
-                    {TRIP_TYPE_OPTIONS.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
+                  <label className="block text-xs font-medium text-text-secondary mb-1.5">Bed preference</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { value: 'no_preference', label: 'No pref' },
+                      { value: 'double', label: 'Double' },
+                      { value: 'twin', label: 'Twin' },
+                      { value: 'single', label: 'Single' },
+                    ].map((opt) => (
+                      <button key={opt.value} type="button" onClick={() => setBedPreference(opt.value as any)}
+                        className={`p-2 rounded-input border-2 text-center transition-all text-xs ${
+                          bedPreference === opt.value ? 'border-accent bg-accent-light text-accent font-medium' : 'border-border hover:border-gray-300 text-primary'
+                        }`}>
+                        {opt.label}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      )}
 
-              {/* Start & End Dates */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="start-date" className="block text-sm font-medium text-primary mb-2">
-                    Start date
-                  </label>
-                  <input
-                    id="start-date"
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
-                  />
+      {/* ═══════════ STEP 3: Destinations ═══════════ */}
+      {wizardStep === 3 && (
+        <div className="space-y-5">
+          {/* Trip mode */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-3">How do you want to plan?</label>
+            <div className="space-y-2">
+              <button type="button" onClick={() => setTripMode('collaborative')}
+                className={`w-full relative p-4 rounded-card border-2 text-left transition-all ${
+                  tripMode === 'collaborative' ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                }`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold text-primary">Group votes</p>
+                  <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-sage-light text-sage-dark">Recommended</span>
                 </div>
-
-                <div>
-                  <label htmlFor="end-date" className="block text-sm font-medium text-primary mb-2">
-                    End date
-                  </label>
-                  <input
-                    id="end-date"
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary"
-                  />
-                </div>
-              </div>
-
-              {/* Payment Method */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-3">
-                  How would you like to handle payment?
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('organiser_pays')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      paymentMethod === 'organiser_pays'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="text-sm font-bold text-primary mb-2">One card</div>
-                    <p className="text-sm font-semibold text-primary mb-1">I'll collect and pay</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      You collect the money from your crew and pay for everything with one card. Quickest way to lock in the booking.
-                    </p>
-                    {paymentMethod === 'organiser_pays' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('individual_pays')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      paymentMethod === 'individual_pays'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <div className="text-sm font-bold text-primary mb-2">Split</div>
-                    <p className="text-sm font-semibold text-primary mb-1">Everyone pays their share</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      We'll send payment links to each person. Everyone pays for their own share before the trip is booked.
-                    </p>
-                    {paymentMethod === 'individual_pays' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-                </div>
-
-                {paymentMethod === 'individual_pays' && (
-                  <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-blue-50 text-blue-800 border border-blue-200">
-                    Once options are ready, each attendee gets a secure payment link. The trip is only booked once everyone has paid.
+                <p className="text-xs text-text-secondary">Your crew votes on destinations — you book based on the results.</p>
+                {tripMode === 'collaborative' && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 )}
-              </div>
+              </button>
+              <button type="button" onClick={() => setTripMode('organiser_decides')}
+                className={`w-full relative p-4 rounded-card border-2 text-left transition-all ${
+                  tripMode === 'organiser_decides' ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                }`}>
+                <p className="text-sm font-semibold text-primary">I&apos;ll decide everything</p>
+                <p className="text-xs text-text-secondary">You pick the destination. Attendees just provide their travel details.</p>
+                {tripMode === 'organiser_decides' && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
 
-              {/* Cost split removed — always even split */}
-
-              {/* Room Sharing */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-3">
-                  Room sharing
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRoomSharing('shared')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      roomSharing === 'shared'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-primary mb-1">Happy to share</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Book fewer rooms — people will pair up and share. Keeps the cost down.
-                    </p>
-                    {roomSharing === 'shared' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setRoomSharing('individual')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      roomSharing === 'individual'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-primary mb-1">Own rooms</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Everyone gets their own room. More private, slightly higher cost per person.
-                    </p>
-                    {roomSharing === 'individual' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-                </div>
-
-                {roomSharing && (
-                  <div className="mt-3 space-y-3">
-                    <div className="px-4 py-3 rounded-input text-xs leading-relaxed bg-bg-soft text-text-secondary border border-border">
-                      {roomSharing === 'shared' ? (
-                        <>We'll search for {customRoomCount || Math.ceil(parseInt(groupSize) / 2)} room{(parseInt(customRoomCount || String(Math.ceil(parseInt(groupSize) / 2)))) !== 1 ? 's' : ''} for {groupSize} people. The hotel cost will be split evenly across the group.</>
-                      ) : (
-                        <>We'll search for {groupSize} room{parseInt(groupSize) !== 1 ? 's' : ''} — one per person. Each person's share includes their own room.</>
+          {/* Destination shortlist — collaborative mode */}
+          {tripMode === 'collaborative' && !destinationsSkipped && (
+            <div className="space-y-4">
+              {/* Presets */}
+              {TRIP_TYPE_PRESETS[tripType] && (
+                <button type="button" onClick={handleApplyPreset}
+                  className={`w-full relative p-4 rounded-card border-2 text-left transition-all ${
+                    presetsApplied ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      presetsApplied ? 'bg-accent border-accent' : 'border-gray-300'
+                    }`}>
+                      {presetsApplied && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                       )}
                     </div>
-
-                    {roomSharing === 'shared' && (
-                      <div className="p-4 bg-bg-soft rounded-card border border-border space-y-3">
-                        <div>
-                          <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                            Number of rooms
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min="1"
-                              max={parseInt(groupSize)}
-                              value={customRoomCount || Math.ceil(parseInt(groupSize) / 2)}
-                              onChange={(e) => setCustomRoomCount(e.target.value)}
-                              className="w-20 px-3 py-1.5 border border-border rounded-input bg-white text-primary text-sm"
-                            />
-                            <span className="text-xs text-text-muted">for {groupSize} people</span>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                            Bed preference
-                          </label>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            {[
-                              { value: 'no_preference', label: 'No preference' },
-                              { value: 'double', label: 'Double beds' },
-                              { value: 'twin', label: 'Twin beds' },
-                              { value: 'single', label: 'Single beds' },
-                            ].map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                onClick={() => setBedPreference(opt.value as any)}
-                                className={`p-2 rounded-input border-2 text-center transition-all text-xs ${
-                                  bedPreference === opt.value
-                                    ? 'border-accent bg-accent-light text-accent font-medium'
-                                    : 'border-border hover:border-gray-300 text-primary'
-                                }`}
-                              >
-                                {opt.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-primary">Popular {tripType} destinations</p>
+                      <p className="text-xs text-text-secondary mt-0.5">Auto-fill curated hotspots — you can still edit</p>
+                    </div>
                   </div>
-                )}
-              </div>
+                </button>
+              )}
 
-              {/* Trip Mode */}
-              <div>
-                <label className="block text-sm font-medium text-primary mb-3">
-                  How do you want to plan this trip?
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setTripMode('collaborative')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      tripMode === 'collaborative'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-blue-100 text-blue-700 mb-2">
-                      Recommended
-                    </span>
-                    <p className="text-sm font-semibold text-primary mb-1">Group votes</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Attendees vote on destinations, dates, budget and hotel style. You choose which things they vote on.
-                    </p>
-                    {tripMode === 'collaborative' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTripMode('organiser_decides')}
-                    className={`relative p-4 rounded-card border-2 text-left transition-all ${
-                      tripMode === 'organiser_decides'
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-primary mb-1">I'll decide everything</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      You pick the destination, dates, budget and hotel. Attendees just provide their travel details.
-                    </p>
-                    {tripMode === 'organiser_decides' && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    )}
-                  </button>
+              {/* Selected cities */}
+              {shortlistedCities.length > 0 && (
+                <div>
+                  <div className="flex flex-wrap gap-2">
+                    {shortlistedCities.map((city, i) => (
+                      <span key={city} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-light text-accent rounded-full text-sm font-medium">
+                        <span className="w-5 h-5 rounded-full bg-accent text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>
+                        {city}
+                        <button type="button" onClick={() => {
+                          const updated = shortlistedCities.filter(c => c !== city)
+                          setShortlistedCities(updated)
+                          if (updated.length === 0) setPresetsApplied(false)
+                        }} className="hover:text-red-600 ml-0.5"><X size={14} /></button>
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-text-muted mt-2">
+                    {shortlistedCities.length}/5 selected {shortlistedCities.length < 3 ? `· Add ${3 - shortlistedCities.length} more` : '· Looking good!'}
+                  </p>
                 </div>
+              )}
 
-                {tripMode === 'collaborative' && (
-                  <div className="mt-3 p-4 bg-bg-soft rounded-card border border-border space-y-2">
-                    <p className="text-xs font-medium text-primary">What should your group vote on?</p>
-                    <p className="text-[11px] text-text-muted mb-2">Toggle off anything you'd rather decide yourself</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { key: 'destinations', label: 'Destinations' },
-                        { key: 'dates', label: 'Dates' },
-                        { key: 'budget', label: 'Budget' },
-                        { key: 'hotel_style', label: 'Hotel style' },
-                      ].map((item) => (
-                        <button
-                          key={item.key}
-                          type="button"
-                          onClick={() => toggleVoting(item.key)}
-                          className={`flex items-center gap-2 p-2.5 rounded-input border-2 text-left transition-all text-xs font-medium ${
-                            votingOn[item.key]
-                              ? 'border-accent bg-accent-light text-accent'
-                              : 'border-border bg-white text-text-muted'
-                          }`}
-                        >
-                          <div className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 ${
-                            votingOn[item.key] ? 'bg-accent' : 'border-2 border-gray-300'
+              {/* Search */}
+              {!presetsApplied && (
+                <div>
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-primary mb-2">Where should we look?</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {(Object.keys(regionLabels) as Region[]).slice(0, 8).map((region) => (
+                        <button key={region} type="button" onClick={() => setDestinationScope(region)}
+                          className={`p-2 rounded-card border-2 text-center transition-all ${
+                            destinationScope === region ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
                           }`}>
-                            {votingOn[item.key] && (
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            )}
-                          </div>
-                          {item.label}
+                          <div className="text-base">{regionIcons[region]}</div>
+                          <p className="text-[10px] font-medium text-primary mt-0.5">{regionLabels[region]}</p>
                         </button>
                       ))}
                     </div>
                   </div>
-                )}
 
-                {tripMode === 'organiser_decides' && (
-                  <div className="mt-3 px-4 py-3 rounded-input text-xs leading-relaxed bg-amber-50 text-amber-800 border border-amber-200">
-                    Attendees will still be asked for their passport name, nationality and departure airport — but they won't vote on anything.
-                  </div>
-                )}
-              </div>
-
-              {/* Destinations — only for collaborative mode */}
-              {tripMode === 'collaborative' && votingOn.destinations && (
-                <div className="space-y-4">
-                  <label className="block text-sm font-medium text-primary">
-                    Shortlist destinations for your group to vote on
-                  </label>
-
-                  {!destinationsSkipped && (
-                    <>
-                      {/* Preset buttons — large with tick */}
-                      {TRIP_TYPE_PRESETS[tripType] && (
-                        <button
-                          type="button"
-                          onClick={handleApplyPreset}
-                          className={`relative w-full p-4 rounded-card border-2 text-left transition-all ${
-                            presetsApplied
-                              ? 'border-accent bg-accent-light'
-                              : 'border-border hover:border-gray-300 bg-white'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                              presetsApplied ? 'bg-accent border-accent' : 'border-gray-300'
-                            }`}>
-                              {presetsApplied && (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-primary">{TRIP_TYPE_EMOJIS[tripType]} Popular {tripType} destinations</p>
-                              <p className="text-xs text-text-secondary mt-0.5">Auto-fill curated {tripType} hotspots — you can still add or remove</p>
-                            </div>
-                          </div>
-                        </button>
-                      )}
-
-                      {/* Show selected cities from preset */}
-                      {shortlistedCities.length > 0 && (
-                        <div>
-                          <div className="flex flex-wrap gap-2">
-                            {shortlistedCities.map((city, i) => (
-                              <span
-                                key={city}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent-light text-accent rounded-full text-sm font-medium"
-                              >
-                                <span className="w-5 h-5 rounded-full bg-accent text-white text-xs flex items-center justify-center font-bold">{i + 1}</span>
-                                {city}
-                                <button type="button" onClick={() => {
-                                  const updated = shortlistedCities.filter(c => c !== city)
-                                  setShortlistedCities(updated)
-                                  if (updated.length === 0) setPresetsApplied(false)
-                                }} className="hover:text-red-600 ml-0.5">
-                                  <X size={14} />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          <p className="text-xs text-text-muted mt-2">
-                            {shortlistedCities.length}/5 selected · {shortlistedCities.length < 3 ? `Add ${3 - shortlistedCities.length} more` : 'Looking good!'}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Manual search — shown when no presets applied, or user wants to add more */}
-                      {!presetsApplied && (
-                        <>
-                          {/* Destination Scope */}
-                          <div>
-                            <label className="block text-sm font-medium text-primary mb-3">
-                              Where should we look?
-                            </label>
-                            <p className="text-xs text-text-secondary mb-3">
-                              This narrows down the options your group can choose from
-                            </p>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                              {(Object.keys(regionLabels) as Region[]).map((region) => (
-                                <button
-                                  key={region}
-                                  type="button"
-                                  onClick={() => setDestinationScope(region)}
-                                  className={`relative p-3 rounded-card border-2 text-center transition-all ${
-                                    destinationScope === region
-                                      ? 'border-accent bg-accent-light'
-                                      : 'border-border hover:border-gray-300 bg-white'
-                                  }`}
-                                >
-                                  <div className="text-lg mb-1">{regionIcons[region]}</div>
-                                  <p className="text-xs font-medium text-primary">{regionLabels[region]}</p>
-                                  {destinationScope === region && (
-                                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-accent flex items-center justify-center">
-                                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                    </div>
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Shortlisted Cities search */}
-                          <div>
-                            <label className="block text-sm font-medium text-primary mb-2">
-                              Shortlist 3–5 destinations for your group to vote on
-                            </label>
-                            <p className="text-xs text-text-secondary mb-3">
-                              Your crew will pick their favourites from this list — guaranteed overlap
-                            </p>
-                            <div className="relative">
-                              <div className="relative">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                                <input
-                                  type="text"
-                                  value={shortlistInput}
-                                  onChange={(e) => {
-                                    setShortlistInput(e.target.value)
-                                    setShowShortlistDropdown(true)
-                                  }}
-                                  onFocus={() => setShowShortlistDropdown(true)}
-                                  placeholder="Search cities to add..."
-                                  disabled={shortlistedCities.length >= 5}
-                                  className="w-full pl-10 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted disabled:opacity-50"
-                                />
-                              </div>
-
-                              {showShortlistDropdown && shortlistedCities.length < 5 && (
-                                <div className="absolute z-10 w-full mt-1 bg-white border border-border rounded-card shadow-lg max-h-48 overflow-y-auto">
-                                  {searchDestinations(shortlistInput, destinationScope)
-                                    .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
-                                    .map((dest) => (
-                                      <button
-                                        key={`${dest.city}-${dest.country}`}
-                                        type="button"
-                                        onClick={() => {
-                                          const label = `${dest.city}, ${dest.country}`
-                                          setShortlistedCities([...shortlistedCities, label])
-                                          setShortlistInput('')
-                                          setShowShortlistDropdown(false)
-                                        }}
-                                        className="w-full px-4 py-2.5 text-left hover:bg-bg-soft transition-colors border-b border-border last:border-b-0"
-                                      >
-                                        <p className="text-sm font-medium text-primary">{dest.city}</p>
-                                        <p className="text-xs text-text-secondary">{dest.country}</p>
-                                      </button>
-                                    ))}
-                                  {searchDestinations(shortlistInput, destinationScope)
-                                    .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
-                                    .length === 0 && (
-                                    <div className="px-4 py-3 text-sm text-text-muted">
-                                      No matching destinations found
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Add more / choose own — when presets are applied */}
-                      {presetsApplied && shortlistedCities.length < 5 && (
-                        <button
-                          type="button"
-                          onClick={() => setPresetsApplied(false)}
-                          className="text-sm text-accent font-medium hover:underline"
-                        >
-                          + Add your own destinations
-                        </button>
-                      )}
-                    </>
-                  )}
-
-                  {/* Divider */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-xs text-text-muted font-medium">or</span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-
-                  {/* Let attendees decide */}
-                  <button
-                    type="button"
-                    onClick={() => setDestinationsSkipped(!destinationsSkipped)}
-                    className={`w-full p-4 rounded-card border-2 text-left transition-all ${
-                      destinationsSkipped
-                        ? 'border-accent bg-accent-light'
-                        : 'border-border hover:border-gray-300 bg-white'
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-primary mb-1">Let attendees decide</p>
-                    <p className="text-xs text-text-secondary leading-relaxed">
-                      Skip the shortlist — your attendees will suggest destinations when they submit their preferences.
-                    </p>
-                    {destinationsSkipped && (
-                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div className="relative">
+                    <div className="relative">
+                      <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                      <input type="text" value={shortlistInput}
+                        onChange={(e) => { setShortlistInput(e.target.value); setShowShortlistDropdown(true) }}
+                        onFocus={() => setShowShortlistDropdown(true)}
+                        placeholder="Search cities to add..."
+                        disabled={shortlistedCities.length >= 5}
+                        className="w-full pl-10 pr-4 py-3 border border-border rounded-card bg-white text-primary placeholder-text-muted disabled:opacity-50" />
+                    </div>
+                    {showShortlistDropdown && shortlistedCities.length < 5 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-border rounded-card shadow-lg max-h-48 overflow-y-auto">
+                        {searchDestinations(shortlistInput, destinationScope)
+                          .filter((d) => !shortlistedCities.includes(`${d.city}, ${d.country}`))
+                          .map((dest) => (
+                            <button key={`${dest.city}-${dest.country}`} type="button"
+                              onClick={() => {
+                                setShortlistedCities([...shortlistedCities, `${dest.city}, ${dest.country}`])
+                                setShortlistInput('')
+                                setShowShortlistDropdown(false)
+                              }}
+                              className="w-full px-4 py-2.5 text-left hover:bg-bg-soft transition-colors border-b border-border last:border-b-0">
+                              <p className="text-sm font-medium text-primary">{dest.city}</p>
+                              <p className="text-xs text-text-secondary">{dest.country}</p>
+                            </button>
+                          ))}
                       </div>
                     )}
-                  </button>
+                  </div>
                 </div>
+              )}
+
+              {presetsApplied && shortlistedCities.length < 5 && (
+                <button type="button" onClick={() => setPresetsApplied(false)}
+                  className="text-sm text-accent font-medium hover:underline">
+                  + Add your own destinations
+                </button>
               )}
             </div>
           )}
 
-          {step === 'attendees_preferences' && (
-            <div className="space-y-6">
-              {/* Section A: Add your crew */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-primary">Add your crew</h3>
-                <p className="text-xs text-text-secondary">
-                  You said this is a group of {groupSize}. Add the other {Math.max(parseInt(groupSize) - 1, 1)} {parseInt(groupSize) - 1 === 1 ? 'person' : 'people'} below.
-                  {attendees.length > 0 && (
-                    <span className="font-medium text-primary"> ({attendees.length} of {parseInt(groupSize) - 1} added)</span>
-                  )}
-                </p>
-
-                {/* Passport confirmation */}
-                <label className="flex items-start gap-3 cursor-pointer p-3 bg-amber-50 border border-amber-200 rounded-input">
-                  <input
-                    type="checkbox"
-                    checked={passportConfirmed}
-                    onChange={(e) => setPassportConfirmed(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-amber-300 text-accent focus:ring-accent"
-                  />
-                  <span className="text-xs text-amber-800 font-medium leading-relaxed">
-                    I confirm that the names I enter for each attendee match their passport exactly
-                  </span>
-                </label>
-
-                {/* Attendee form */}
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="attendee-first-name" className="block text-sm font-medium text-primary mb-2">
-                        First name
-                      </label>
-                      <input
-                        id="attendee-first-name"
-                        type="text"
-                        value={newAttendeeFirstName}
-                        onChange={(e) => setNewAttendeeFirstName(e.target.value)}
-                        placeholder="e.g., John"
-                        className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="attendee-last-name" className="block text-sm font-medium text-primary mb-2">
-                        Last name
-                      </label>
-                      <input
-                        id="attendee-last-name"
-                        type="text"
-                        value={newAttendeeLastName}
-                        onChange={(e) => setNewAttendeeLastName(e.target.value)}
-                        placeholder="e.g., Smith"
-                        className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="attendee-email" className="block text-sm font-medium text-primary mb-2">
-                      Email
-                    </label>
-                    <input
-                      id="attendee-email"
-                      type="email"
-                      value={newAttendeeEmail}
-                      onChange={(e) => setNewAttendeeEmail(e.target.value)}
-                      placeholder="john@example.com"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          handleAddAttendee()
-                        }
-                      }}
-                      className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleAddAttendee}
-                    className="w-full py-2 border border-border text-primary rounded-input font-medium hover:bg-bg-soft transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Plus size={18} />
-                    Add attendee
-                  </button>
-                </div>
-
-                {/* Attendee List */}
-                {attendees.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-primary">
-                      Attendees ({attendees.length})
-                    </p>
-                    <div className="space-y-3">
-                      {attendees.map((attendee) => (
-                        <div
-                          key={attendee.id}
-                          className="px-4 py-3 bg-bg-soft rounded-card border border-border space-y-3"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium text-primary">{attendee.firstName} {attendee.lastName}</p>
-                                {attendee.role === 'surprise' && (
-                                  <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-purple-100 text-purple-700">Surprise</span>
-                                )}
-                                {attendee.costsCovered && (
-                                  <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-green-100 text-green-700">Costs covered</span>
-                                )}
-                              </div>
-                              <p className="text-xs text-text-secondary">{attendee.email}</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveAttendee(attendee.id)}
-                              className="p-1 hover:bg-white rounded transition-colors"
-                            >
-                              <X size={18} className="text-text-secondary hover:text-red-600" />
-                            </button>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setAttendees(attendees.map(a =>
-                                a.id === attendee.id ? { ...a, costsCovered: !a.costsCovered } : a
-                              ))}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                                attendee.costsCovered
-                                  ? 'bg-green-50 border-green-300 text-green-700'
-                                  : 'bg-white border-border text-text-secondary hover:border-green-300'
-                              }`}
-                            >
-                              <Gift size={12} />
-                              {attendee.costsCovered ? 'Costs covered' : 'Cover their costs'}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => setAttendees(attendees.map(a =>
-                                a.id === attendee.id ? { ...a, role: a.role === 'surprise' ? 'attendee' : 'surprise' } : a
-                              ))}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                                attendee.role === 'surprise'
-                                  ? 'bg-purple-50 border-purple-300 text-purple-700'
-                                  : 'bg-white border-border text-text-secondary hover:border-purple-300'
-                              }`}
-                            >
-                              <EyeOff size={12} />
-                              {attendee.role === 'surprise' ? 'Surprise attendee' : 'Make surprise'}
-                            </button>
-                          </div>
-
-                          {attendee.role === 'surprise' && (
-                            <div className="pt-2 border-t border-border">
-                              <label className="block text-xs font-medium text-purple-700 mb-1.5">
-                                Their departure airport (you're entering on their behalf)
-                              </label>
-                              <input
-                                type="text"
-                                value={attendee.preferredAirport || ''}
-                                onChange={(e) => setAttendees(attendees.map(a =>
-                                  a.id === attendee.id ? { ...a, preferredAirport: e.target.value } : a
-                                ))}
-                                placeholder="e.g., London Heathrow, Manchester..."
-                                className="w-full px-3 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm"
-                              />
-                              <p className="text-[11px] text-purple-600 mt-1">
-                                This person won't receive an invite or see the trip — it's a surprise! You'll enter their travel details.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+          {/* Divider */}
+          {tripMode === 'collaborative' && (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-text-muted font-medium">or</span>
+                <div className="flex-1 h-px bg-border" />
               </div>
 
-              {/* Section B: Your preferences */}
-              <div className="space-y-4 pt-8 mt-4">
-                <div className="border-t-2 border-accent/20 pt-6">
-                  <h3 className="text-lg font-bold text-primary">Your preferences</h3>
-                  <p className="text-sm text-text-secondary mt-1">
-                    Now tell us what you want from this trip. Your attendees will be asked the same questions.
-                  </p>
-                </div>
-
-                {/* Nationality */}
-                <div className="relative">
-                  <label htmlFor="nationality" className="block text-sm font-medium text-primary mb-2">
-                    Nationality
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => { setShowNationalityDropdown(!showNationalityDropdown); setNationalitySearch('') }}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-left flex items-center justify-between gap-2"
-                  >
-                    <span className={nationality ? 'text-primary' : 'text-text-muted'}>
-                      {nationality || 'Select your nationality'}
-                    </span>
-                    <ChevronDown size={16} className={`text-text-secondary transition-transform ${showNationalityDropdown ? 'rotate-180' : ''}`} />
-                  </button>
-                  {showNationalityDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setShowNationalityDropdown(false)} />
-                      <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-card shadow-lg max-h-64 overflow-hidden">
-                        <div className="p-2 border-b border-border">
-                          <div className="flex items-center gap-2 px-2 py-1 bg-bg-soft rounded-input">
-                            <Search size={14} className="text-text-muted" />
-                            <input
-                              type="text"
-                              value={nationalitySearch}
-                              onChange={(e) => setNationalitySearch(e.target.value)}
-                              placeholder="Search..."
-                              autoFocus
-                              className="flex-1 bg-transparent text-sm text-primary placeholder-text-muted outline-none"
-                            />
-                          </div>
-                        </div>
-                        <div className="overflow-y-auto max-h-48">
-                          {filteredNationalities.length === 0 ? (
-                            <p className="p-3 text-sm text-text-muted text-center">No results</p>
-                          ) : (
-                            filteredNationalities.map((n) => (
-                              <button
-                                key={n}
-                                type="button"
-                                onClick={() => { setNationality(n); setShowNationalityDropdown(false) }}
-                                className={`w-full px-4 py-2 text-left text-sm hover:bg-bg-soft transition-colors ${
-                                  nationality === n ? 'bg-accent-light text-accent font-medium' : 'text-primary'
-                                }`}
-                              >
-                                {n}
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  <p className="text-xs text-text-muted mt-1">Helps us check visa requirements for your group</p>
-                </div>
-
-                {/* Vote on destinations — only if collaborative and not skipped */}
-                {tripMode === 'collaborative' && !destinationsSkipped && shortlistedCities.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-2">
-                    Vote for your top destinations
-                  </label>
-                  <p className="text-xs text-text-secondary mb-3">
-                    Pick up to 3 favourites from the shortlist — tap to select
-                  </p>
-                  <div className="grid grid-cols-1 gap-2">
-                    {shortlistedCities.map((city, i) => {
-                      const isVoted = destinationVotes.includes(city)
-                      const voteRank = destinationVotes.indexOf(city) + 1
-
-                      return (
-                        <button
-                          key={city}
-                          type="button"
-                          onClick={() => handleToggleDestinationVote(city)}
-                          className={`relative flex items-center gap-3 p-4 rounded-card border-2 text-left transition-all ${
-                            isVoted
-                              ? 'border-accent bg-accent-light'
-                              : destinationVotes.length >= 3
-                                ? 'border-border bg-gray-50 opacity-50 cursor-not-allowed'
-                                : 'border-border hover:border-gray-300 bg-white'
-                          }`}
-                          disabled={!isVoted && destinationVotes.length >= 3}
-                        >
-                          {isVoted ? (
-                            <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center font-bold text-sm shrink-0">
-                              #{voteRank}
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full border-2 border-border bg-white flex items-center justify-center shrink-0">
-                              <span className="text-xs text-text-muted">{i + 1}</span>
-                            </div>
-                          )}
-                          <div>
-                            <p className={`text-sm font-semibold ${isVoted ? 'text-accent' : 'text-primary'}`}>
-                              {city.split(', ')[0]}
-                            </p>
-                            <p className="text-xs text-text-secondary">{city.split(', ')[1]}</p>
-                          </div>
-                          {isVoted && (
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            </div>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <p className="text-xs text-text-muted mt-2">
-                    {destinationVotes.length}/3 selected{destinationVotes.length === 0 ? ' — tap your favourites' : ''}
-                  </p>
-                </div>
-                )}
-
-                {/* Transport Preference */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-3">
-                    How do you want to get there?
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { value: 'flight', label: 'Fly' },
-                      { value: 'drive', label: 'Drive' },
-                      { value: 'no_preference', label: 'Any' },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          setTransportPreference(option.value)
-                          setHubSearchInput('')
-                          setPreferredAirport('')
-                        }}
-                        className={`p-3 rounded-card border-2 text-center transition-all ${
-                          transportPreference === option.value
-                            ? 'border-accent bg-accent-light'
-                            : 'border-border hover:border-gray-300 bg-white'
-                        }`}
-                      >
-                        <p className="text-sm font-medium text-primary">{option.label}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Flight preferences */}
-                {(transportPreference === 'flight' || transportPreference === 'no_preference') && (
-                  <div className="space-y-4 p-4 bg-bg-soft rounded-card border border-border">
-                    <p className="text-sm font-medium text-primary">Flight preferences</p>
-
-                    <div>
-                      <label className="block text-xs font-medium text-text-secondary mb-2">
-                        Preferred flight times <span className="text-text-muted font-normal">(select all that work for you)</span>
-                      </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                        {[
-                          { value: 'early_morning', label: 'Early morning', sub: 'Before 8am' },
-                          { value: 'morning', label: 'Morning', sub: '8am – 12pm' },
-                          { value: 'afternoon', label: 'Afternoon', sub: '12pm – 6pm' },
-                          { value: 'evening', label: 'Evening', sub: 'After 6pm' },
-                          { value: 'no_preference', label: 'Any time', sub: 'No preference' },
-                        ].map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => toggleFlightTime(option.value)}
-                            className={`p-2 rounded-input border-2 text-center transition-all ${
-                              flightTimePreferences.includes(option.value)
-                                ? 'border-accent bg-accent-light'
-                                : 'border-border hover:border-gray-300 bg-white'
-                            }`}
-                          >
-                            <p className="text-xs font-medium text-primary">{option.label}</p>
-                            <p className="text-[10px] text-text-secondary">{option.sub}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <div
-                        onClick={() => setDirectFlightsOnly(!directFlightsOnly)}
-                        className={`w-10 h-6 rounded-full transition-colors flex items-center ${
-                          directFlightsOnly ? 'bg-accent justify-end' : 'bg-border justify-start'
-                        }`}
-                      >
-                        <div className="w-5 h-5 bg-white rounded-full shadow mx-0.5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-primary">Direct flights only</p>
-                        <p className="text-xs text-text-secondary">Skip options with layovers</p>
-                      </div>
-                    </label>
-                  </div>
-                )}
-
-                {/* Departure Location */}
-                <div className="relative">
-                  <label htmlFor="airport" className="block text-sm font-medium text-primary mb-2">
-                    {transportPreference === 'train'
-                      ? 'Where will you depart from?'
-                      : transportPreference === 'drive'
-                        ? 'Where will you depart from?'
-                        : 'Your nearest airport'
-                    }
-                  </label>
-                  <div className="relative">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                    <input
-                      id="airport"
-                      type="text"
-                      value={hubSearchInput}
-                      onChange={(e) => {
-                        setHubSearchInput(e.target.value)
-                        setShowHubDropdown(true)
-                        if (!e.target.value.trim()) setPreferredAirport('')
-                      }}
-                      onFocus={() => setShowHubDropdown(true)}
-                      placeholder={
-                        transportPreference === 'train'
-                          ? 'Search cities e.g. London, Manchester...'
-                          : 'Search airports e.g. Heathrow, Manchester...'
-                      }
-                      className="w-full pl-10 pr-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                      autoComplete="off"
-                    />
-                    {hubSearchInput && (
-                      <button
-                        type="button"
-                        onClick={() => { setHubSearchInput(''); setPreferredAirport(''); setShowHubDropdown(false) }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </div>
-
-                  {showHubDropdown && (
-                    <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-card shadow-lg max-h-64 overflow-y-auto">
-                      {(() => {
-                        const mode = transportPreference === 'train' ? 'train' as const
-                          : transportPreference === 'flight' ? 'flight' as const
-                          : 'any' as const
-                        const results = searchTravelHubs(hubSearchInput, mode)
-
-                        if (results.length === 0) {
-                          return (
-                            <div className="px-4 py-3 text-sm text-text-muted">
-                              No {transportPreference === 'train' ? 'stations' : 'airports'} found for "{hubSearchInput}"
-                            </div>
-                          )
-                        }
-
-                        return results.map((hub) => (
-                          <button
-                            key={`${hub.city}-${hub.country}`}
-                            type="button"
-                            onClick={() => {
-                              setPreferredAirport(hub.city)
-                              setHubSearchInput(getHubLabel(hub, mode))
-                              setShowHubDropdown(false)
-                            }}
-                            className="w-full text-left px-4 py-2.5 hover:bg-bg-soft transition-colors flex items-center justify-between gap-2 border-b border-border last:border-0"
-                          >
-                            <div>
-                              <p className="text-sm font-medium text-primary">{hub.city}</p>
-                              <p className="text-xs text-text-secondary">
-                                {mode === 'train' && hub.stationName
-                                  ? hub.stationName
-                                  : hub.airportName
-                                    ? `${hub.airportName}${hub.airportCode ? ` (${hub.airportCode})` : ''}`
-                                    : hub.country
-                                }
-                              </p>
-                            </div>
-                            <span className="text-[10px] text-text-muted uppercase">{hub.country}</span>
-                          </button>
-                        ))
-                      })()}
-                    </div>
-                  )}
-                </div>
-
-                {showHubDropdown && (
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowHubDropdown(false)}
-                  />
-                )}
-
-                {/* Accommodation Type */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-3">
-                    What type of accommodation do you prefer?
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {[
-                      { value: 'hotel', label: 'Hotel' },
-                      { value: 'apartment', label: 'Apartment' },
-                      { value: 'villa', label: 'Villa' },
-                      { value: 'hostel', label: 'Hostel' },
-                      { value: 'resort', label: 'Resort' },
-                      { value: 'no_preference', label: 'No preference' },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setAccommodationType(option.value)}
-                        className={`relative p-3 rounded-card border-2 text-center transition-all ${
-                          accommodationType === option.value
-                            ? 'border-accent bg-accent-light'
-                            : 'border-border hover:border-gray-300 bg-white'
-                        }`}
-                      >
-                        <p className="text-sm font-medium text-primary">{option.label}</p>
-                        {accommodationType === option.value && (
-                          <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-accent flex items-center justify-center">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Accommodation Rating */}
-                {accommodationType && accommodationType !== 'hostel' && accommodationType !== 'no_preference' && (
-                  <div>
-                    <label className="block text-sm font-medium text-primary mb-3">
-                      Minimum star rating
-                    </label>
-                    <div className="flex gap-2">
-                      {['1', '2', '3', '4', '5'].map((stars) => (
-                        <button
-                          key={stars}
-                          type="button"
-                          onClick={() => setAccommodationRating(stars)}
-                          className={`flex-1 py-2 rounded-input border-2 text-sm font-medium transition-all ${
-                            accommodationRating === stars
-                              ? 'border-accent bg-accent-light text-accent'
-                              : 'border-border hover:border-gray-300 text-primary'
-                          }`}
-                        >
-                          {stars}+ star{parseInt(stars) > 1 ? 's' : ''}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Budget */}
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-3">
-                    Your budget
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-                    {[
-                      { tier: 'budget', label: 'Budget', sub: '£0–500pp' },
-                      { tier: 'mid', label: 'Mid-range', sub: '£500–1,000pp' },
-                      { tier: 'bougie', label: 'Bougie', sub: '£1,000–2,000pp' },
-                      { tier: 'blowout', label: 'Blow-out', sub: '£2,000+pp' },
-                    ].map((option) => (
-                      <button
-                        key={option.tier}
-                        type="button"
-                        onClick={() => handleBudgetTierChange(option.tier as 'budget' | 'mid' | 'bougie' | 'blowout')}
-                        className={`p-2 rounded-input border-2 text-center transition-all ${
-                          budgetTier === option.tier
-                            ? 'border-accent bg-accent-light'
-                            : 'border-border hover:border-gray-300 bg-white'
-                        }`}
-                      >
-                        <p className="text-xs font-medium text-primary">{option.label}</p>
-                        <p className="text-[10px] text-text-secondary">{option.sub}</p>
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowCustomBudget(!showCustomBudget)}
-                    className="text-xs font-medium text-accent hover:underline"
-                  >
-                    Set custom range
-                  </button>
-
-                  {showCustomBudget && (
-                    <div className="mt-3 grid grid-cols-2 gap-3">
-                      <input
-                        type="number"
-                        value={budgetMin}
-                        onChange={(e) => setBudgetMin(e.target.value)}
-                        placeholder="Min (£)"
-                        className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                      />
-                      <input
-                        type="number"
-                        value={budgetMax}
-                        onChange={(e) => setBudgetMax(e.target.value)}
-                        placeholder="Max (£)"
-                        className="w-full px-4 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted"
-                      />
-                    </div>
-                  )}
-                  <p className="text-xs text-text-muted mt-2">Total budget per person including flights and accommodation</p>
-                </div>
-
-                {/* Must-haves */}
-                <div className="relative">
-                  <label className="block text-sm font-medium text-primary mb-2">
-                    Must-haves for this trip
-                  </label>
-                  {mustHaves.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {mustHaves.map((item) => (
-                        <span
-                          key={item}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium"
-                        >
-                          {item}
-                          <button type="button" onClick={() => setMustHaves(mustHaves.filter(m => m !== item))} className="hover:text-red-600">
-                            <X size={14} />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => { setShowMustHaveDropdown(!showMustHaveDropdown);  }}
-                    className="w-full px-4 py-2 border border-border rounded-input bg-white text-left text-text-muted hover:border-gray-300 transition-colors flex items-center justify-between"
-                  >
-                    <span>{mustHaves.length > 0 ? 'Add more...' : 'Select must-haves...'}</span>
-                    <Plus size={16} />
-                  </button>
-                  {showMustHaveDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setShowMustHaveDropdown(false)} />
-                      <div className="absolute z-20 mt-1 w-full bg-white border border-border rounded-card shadow-lg max-h-56 overflow-y-auto">
-                        {MUST_HAVE_OPTIONS.filter(opt => !mustHaves.includes(opt)).map((opt) => (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => { setMustHaves([...mustHaves, opt]); setShowMustHaveDropdown(false) }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-green-50 transition-colors border-b border-border last:border-0"
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                        {MUST_HAVE_OPTIONS.filter(opt => !mustHaves.includes(opt)).length === 0 && (
-                          <div className="px-4 py-3 text-sm text-text-muted">All options selected</div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                  <p className="text-xs text-text-muted mt-1">Things you absolutely need</p>
-                </div>
-
-              </div>
-            </div>
+              <button type="button" onClick={() => setDestinationsSkipped(!destinationsSkipped)}
+                className={`w-full p-4 rounded-card border-2 text-left transition-all ${
+                  destinationsSkipped ? 'border-accent bg-accent-light' : 'border-border hover:border-gray-300 bg-white'
+                }`}>
+                <p className="text-sm font-semibold text-primary">Let attendees decide</p>
+                <p className="text-xs text-text-secondary mt-0.5">Skip the shortlist — your crew will suggest destinations.</p>
+              </button>
+            </>
           )}
+        </div>
+      )}
 
-          {/* Error near button */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-card px-4 py-3 text-sm text-red-700">
-              {error}
+      {/* ═══════════ STEP 4: Your crew ═══════════ */}
+      {wizardStep === 4 && (
+        <div className="space-y-5">
+          <p className="text-sm text-text-secondary">
+            You said this is a group of {groupSize}. Add the other {Math.max(parseInt(groupSize) - 1, 1)} {parseInt(groupSize) - 1 === 1 ? 'person' : 'people'} below.
+            {attendees.length > 0 && (
+              <span className="font-medium text-primary"> ({attendees.length} of {parseInt(groupSize) - 1} added)</span>
+            )}
+          </p>
+
+          {/* Passport confirmation */}
+          <label className="flex items-start gap-3 cursor-pointer p-3 bg-amber-50 border border-amber-200 rounded-card">
+            <input type="checkbox" checked={passportConfirmed} onChange={(e) => setPassportConfirmed(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-amber-300 text-accent focus:ring-accent" />
+            <span className="text-xs text-amber-800 font-medium leading-relaxed">
+              I confirm that the names I enter match each person&apos;s passport exactly
+            </span>
+          </label>
+
+          {/* Add attendee form */}
+          <div className="space-y-3 p-4 bg-white border border-border rounded-card">
+            <div className="grid grid-cols-2 gap-3">
+              <input type="text" value={newAttendeeFirstName} onChange={(e) => setNewAttendeeFirstName(e.target.value)}
+                placeholder="First name" className="w-full px-3 py-2.5 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm" />
+              <input type="text" value={newAttendeeLastName} onChange={(e) => setNewAttendeeLastName(e.target.value)}
+                placeholder="Last name" className="w-full px-3 py-2.5 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm" />
             </div>
-          )}
-
-          {/* Buttons */}
-          <div className="flex gap-3 pt-2">
-            {step !== 'basics' && (
-              <button
-                type="button"
-                onClick={handleBackStep}
-                className="flex-1 py-2 border border-border text-primary rounded-input font-medium hover:bg-bg-soft transition-colors"
-              >
-                Back
-              </button>
-            )}
-
-            {step !== 'attendees_preferences' ? (
-              <button
-                type="button"
-                onClick={handleNextStep}
-                className="flex-1 py-2 bg-accent hover:bg-accent-hover text-white rounded-input font-medium transition-colors"
-              >
-                Next step
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleCreateTrip}
-                disabled={loading || !tripName}
-                className="flex-1 py-2 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-input font-medium flex items-center justify-center gap-2 transition-colors"
-              >
-                {loading ? (
-                  <>
-                    <Loader size={18} className="animate-spin" />
-                    Creating trip...
-                  </>
-                ) : (
-                  'Create trip'
-                )}
-              </button>
-            )}
+            <input type="email" value={newAttendeeEmail} onChange={(e) => setNewAttendeeEmail(e.target.value)}
+              placeholder="Email address"
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddAttendee() } }}
+              className="w-full px-3 py-2.5 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm" />
+            <button type="button" onClick={handleAddAttendee}
+              className="w-full py-2.5 border border-border text-primary rounded-input font-medium hover:bg-bg-soft transition-colors flex items-center justify-center gap-2 text-sm">
+              <Plus size={16} /> Add attendee
+            </button>
           </div>
-        </form>
+
+          {/* Attendee list */}
+          {attendees.length > 0 && (
+            <div className="space-y-2">
+              {attendees.map((attendee) => (
+                <div key={attendee.id} className="px-4 py-3 bg-white rounded-card border border-border space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-primary">{attendee.firstName} {attendee.lastName}</p>
+                        {attendee.role === 'surprise' && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-purple-100 text-purple-700">Surprise</span>
+                        )}
+                        {attendee.costsCovered && (
+                          <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-green-100 text-green-700">Covered</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-text-secondary">{attendee.email}</p>
+                    </div>
+                    <button type="button" onClick={() => setAttendees(attendees.filter(a => a.id !== attendee.id))}
+                      className="p-1 hover:bg-bg-soft rounded transition-colors">
+                      <X size={16} className="text-text-muted hover:text-red-600" />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setAttendees(attendees.map(a =>
+                      a.id === attendee.id ? { ...a, costsCovered: !a.costsCovered } : a
+                    ))}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                        attendee.costsCovered ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-border text-text-secondary hover:border-green-300'
+                      }`}>
+                      <Gift size={11} /> {attendee.costsCovered ? 'Costs covered' : 'Cover costs'}
+                    </button>
+                    <button type="button" onClick={() => setAttendees(attendees.map(a =>
+                      a.id === attendee.id ? { ...a, role: a.role === 'surprise' ? 'attendee' : 'surprise' } : a
+                    ))}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                        attendee.role === 'surprise' ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-white border-border text-text-secondary hover:border-purple-300'
+                      }`}>
+                      <EyeOff size={11} /> {attendee.role === 'surprise' ? 'Surprise' : 'Make surprise'}
+                    </button>
+                  </div>
+
+                  {attendee.role === 'surprise' && (
+                    <div className="pt-2 border-t border-border">
+                      <label className="block text-xs font-medium text-purple-700 mb-1">Their departure airport</label>
+                      <input type="text" value={attendee.preferredAirport || ''}
+                        onChange={(e) => setAttendees(attendees.map(a =>
+                          a.id === attendee.id ? { ...a, preferredAirport: e.target.value } : a
+                        ))}
+                        placeholder="e.g. London Heathrow"
+                        className="w-full px-3 py-2 border border-border rounded-input bg-white text-primary placeholder-text-muted text-sm" />
+                      <p className="text-[11px] text-purple-600 mt-1">This person won&apos;t see the trip — it&apos;s a surprise!</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <p className="text-xs text-text-muted text-center">
+            You can always add more people after creating the trip
+          </p>
+        </div>
+      )}
+
+      {/* ═══════════ Navigation buttons ═══════════ */}
+      <div className="flex gap-3 mt-8">
+        {wizardStep > 1 && (
+          <button type="button" onClick={handleBack}
+            className="flex-1 py-3 border border-border text-primary rounded-card font-medium hover:bg-bg-soft transition-colors flex items-center justify-center gap-2">
+            <ArrowLeft size={16} /> Back
+          </button>
+        )}
+
+        {wizardStep < 4 ? (
+          <button type="button" onClick={handleNext}
+            className="flex-1 py-3 bg-accent hover:bg-accent-hover text-white rounded-card font-semibold transition-colors flex items-center justify-center gap-2">
+            Next <ArrowRight size={16} />
+          </button>
+        ) : (
+          <button type="button" onClick={handleCreateTrip} disabled={loading}
+            className="flex-1 py-3 bg-accent hover:bg-accent-hover disabled:opacity-50 text-white rounded-card font-semibold transition-colors flex items-center justify-center gap-2">
+            {loading ? <><Loader size={18} className="animate-spin" /> Creating trip...</> : 'Create trip'}
+          </button>
+        )}
       </div>
     </div>
   )
