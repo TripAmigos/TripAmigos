@@ -44,35 +44,12 @@ interface Attendee {
 // CACTUS MASCOT
 // ═══════════════════════════════════════════════════════
 
-function CactusMascot({ message, size = 'md' }: { message: string; size?: 'sm' | 'md' }) {
-  const h = size === 'sm' ? 60 : 80
-  const w = size === 'sm' ? 50 : 66
+function CactusMascot({ message }: { message: string }) {
   return (
     <div className="flex items-start gap-3">
       <div className="flex-shrink-0">
-        <svg width={w} height={h} viewBox="0 0 66 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Sombrero */}
-          <ellipse cx="33" cy="22" rx="30" ry="6" fill="#C86552" />
-          <ellipse cx="33" cy="20" rx="18" ry="5" fill="#d4816f" />
-          <path d="M20 20 Q33 2 46 20" fill="#C86552" />
-          <ellipse cx="33" cy="20" rx="13" ry="3.5" fill="#d4816f" />
-          {/* Body */}
-          <rect x="22" y="25" rx="11" ry="11" width="22" height="38" fill="#A3B7A0" />
-          {/* Left arm */}
-          <rect x="10" y="32" rx="5" ry="5" width="12" height="20" fill="#A3B7A0" />
-          <rect x="10" y="28" rx="4" ry="4" width="12" height="10" fill="#A3B7A0" />
-          {/* Right arm */}
-          <rect x="44" y="35" rx="5" ry="5" width="12" height="18" fill="#A3B7A0" />
-          <rect x="44" y="30" rx="4" ry="4" width="12" height="10" fill="#A3B7A0" />
-          {/* Eyes */}
-          <circle cx="29" cy="38" r="2.5" fill="#3A3532" />
-          <circle cx="37" cy="38" r="2.5" fill="#3A3532" />
-          {/* Smile */}
-          <path d="M28 44 Q33 49 38 44" stroke="#3A3532" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-          {/* Feet */}
-          <ellipse cx="28" cy="64" rx="6" ry="3" fill="#8a9e87" />
-          <ellipse cx="38" cy="64" rx="6" ry="3" fill="#8a9e87" />
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/cactus-mascot.svg" alt="TripAmigos mascot" width={60} height={80} className="w-[60px] h-auto" />
       </div>
       <div className="relative bg-white border border-border rounded-card p-3 shadow-sm mt-2 flex-1">
         <div className="absolute -left-2 top-4 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-border" />

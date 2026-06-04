@@ -1,0 +1,70 @@
+<svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pot -->
+  <ellipse cx="60" cy="128" rx="35" ry="5" fill="#3A3532"/>
+  <path d="M30 128 L36 155 Q60 162 84 155 L90 128 Z" fill="#C86552"/>
+  <path d="M30 128 L36 155 Q60 162 84 155 L90 128 Z" fill="url(#potShade)"/>
+  <ellipse cx="60" cy="128" rx="30" ry="4" fill="#d4816f"/>
+
+  <!-- Body -->
+  <rect x="42" y="52" rx="16" ry="16" width="36" height="80" fill="#A3B7A0"/>
+  <!-- Body lines -->
+  <line x1="52" y1="58" x2="52" y2="125" stroke="#8a9e87" stroke-width="1" stroke-linecap="round"/>
+  <line x1="60" y1="55" x2="60" y2="128" stroke="#8a9e87" stroke-width="1" stroke-linecap="round"/>
+  <line x1="68" y1="58" x2="68" y2="125" stroke="#8a9e87" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Left arm -->
+  <path d="M42 72 Q30 72 26 85 Q22 100 26 108 Q30 116 34 108 Q38 98 36 85 Q38 78 42 78" fill="#A3B7A0"/>
+  <path d="M28 86 Q26 95 28 104" stroke="#8a9e87" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Right arm -->
+  <path d="M78 72 Q90 72 94 85 Q98 100 94 108 Q90 116 86 108 Q82 98 84 85 Q82 78 78 78" fill="#A3B7A0"/>
+  <path d="M92 86 Q94 95 92 104" stroke="#8a9e87" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Spines -->
+  <line x1="40" y1="65" x2="35" y2="62" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="40" y1="80" x2="35" y2="78" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="40" y1="95" x2="35" y2="93" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="40" y1="110" x2="35" y2="108" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="80" y1="65" x2="85" y2="62" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="80" y1="80" x2="85" y2="78" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="80" y1="95" x2="85" y2="93" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="80" y1="110" x2="85" y2="108" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Arm spines -->
+  <line x1="24" y1="88" x2="19" y2="86" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="24" y1="100" x2="19" y2="99" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="96" y1="88" x2="101" y2="86" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="96" y1="100" x2="101" y2="99" stroke="#3A3532" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Sombrero brim -->
+  <ellipse cx="60" cy="52" rx="42" ry="10" fill="#C86552"/>
+  <!-- Sombrero brim underside -->
+  <ellipse cx="60" cy="52" rx="42" ry="10" fill="#C86552"/>
+  <path d="M18 52 Q60 58 102 52" stroke="#b5574a" stroke-width="0.5" fill="none"/>
+  <!-- Brim trim -->
+  <path d="M22 50 L28 46 L34 50 L40 46 L46 50 L52 46 L58 50 L64 46 L70 50 L76 46 L82 50 L88 46 L94 50 L98 48" stroke="#A3B7A0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Sombrero top -->
+  <path d="M38 52 Q38 28 60 22 Q82 28 82 52" fill="#C86552"/>
+  <ellipse cx="60" cy="52" rx="22" ry="5" fill="#d4816f"/>
+  <!-- Hat band -->
+  <rect x="38" y="42" width="44" height="7" rx="1" fill="#3A3532"/>
+  <!-- Band zigzag -->
+  <path d="M40 45 L44 42 L48 48 L52 42 L56 48 L60 42 L64 48 L68 42 L72 48 L76 42 L80 45" stroke="#A3B7A0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Eyes -->
+  <ellipse cx="52" cy="82" rx="3.5" ry="4" fill="#3A3532"/>
+  <ellipse cx="68" cy="82" rx="3.5" ry="4" fill="#3A3532"/>
+  <!-- Eye highlights -->
+  <circle cx="53.5" cy="80.5" r="1.2" fill="white"/>
+  <circle cx="69.5" cy="80.5" r="1.2" fill="white"/>
+
+  <!-- Smile -->
+  <path d="M52 92 Q60 100 68 92" stroke="#3A3532" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <defs>
+    <linearGradient id="potShade" x1="60" y1="128" x2="60" y2="160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="black" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+</svg>
