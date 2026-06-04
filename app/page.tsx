@@ -39,33 +39,12 @@ export default function Home() {
           <div className="relative w-full max-w-5xl mx-auto px-5 sm:px-4 pt-14 pb-6 md:pt-28 md:pb-12 text-center space-y-6 md:space-y-7">
             <div className="space-y-5">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary leading-snug max-w-3xl mx-auto">
-                Group trip booking
-                <span className="block text-accent mt-1">platform.</span>
+                Stop being the group&apos;s
+                <span className="block text-accent mt-1">unpaid travel agent.</span>
               </h1>
               <p className="text-base md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
-                TripAmigos brings together your group&apos;s travel, hotel and date preferences.
-                We shortlist trips based on everyone&apos;s needs,
-                allowing you to book and manage everything all in one place!
+                Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
               </p>
-            </div>
-
-            {/* Pain point quotes inline */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
-              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
-                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
-                  &ldquo;I don&apos;t mind where we go, you choose!&rdquo;
-                </p>
-              </div>
-              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
-                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
-                  &ldquo;I&apos;ve only got a £200 budget all in...&rdquo;
-                </p>
-              </div>
-              <div className="bg-white rounded-card border border-border p-3.5 text-center shadow-sm">
-                <p className="font-semibold text-primary text-xs sm:text-sm leading-relaxed">
-                  &ldquo;I&apos;m not available until October...&rdquo;
-                </p>
-              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -279,10 +258,10 @@ export default function Home() {
         <section className="bg-gradient-to-r from-accent to-[#d4816f]">
           <div className="max-w-3xl mx-auto px-5 sm:px-4 py-12 md:py-20 text-center space-y-5 md:space-y-6">
             <h2 className="text-2xl md:text-4xl font-bold text-white text-balance">
-              Stop being the group&apos;s unpaid travel agent.
+              Ready to plan your next trip?
             </h2>
             <p className="text-white/80 text-base md:text-lg max-w-xl mx-auto">
-              Create a trip in 60 seconds. Share the link. Let everyone weigh in. Book when you&apos;re ready.
+              It&apos;s free to get started. Create a trip, invite your group, and let TripAmigos do the rest.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
